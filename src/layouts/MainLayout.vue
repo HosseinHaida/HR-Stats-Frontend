@@ -15,7 +15,7 @@
           <!-- <q-btn color="white" class="text-black" push>
             <div class="row items-center no-wrap">
               <div class="text-center q-pr-md">
-                {{ user.name + " " + user.family }}
+                {{ user.Name + " " + user.Family }}
               </div>
               <q-icon left name="person" class="q-mr-none" />
             </div>
@@ -32,7 +32,7 @@
               <div class="row items-center no-wrap">
                 <q-icon left name="person" />
                 <div class="text-center" style="text-transform: uppercase">
-                  {{ user.name + " " + user.family }}
+                  {{ user.Name + " " + user.Family }}
                 </div>
               </div>
             </template>
@@ -40,30 +40,33 @@
             <div class="row no-wrap q-pa-md">
               <div class="column items-center" style="min-width: 110px">
                 <q-avatar size="72px">
-                  <q-img :ratio="1" :src="user.photo" />
+                  <q-img :ratio="1" :src="user.Photo" />
                   <span
                     class="user-photo-placeholder border: 1px solid black"
                     >{{
-                      user.name.charAt(0).toUpperCase() +
+                      user.Name.charAt(0).toUpperCase() +
                       " " +
-                      user.family.charAt(0).toUpperCase()
+                      user.Family.charAt(0).toUpperCase()
                     }}</span
                   >
                 </q-avatar>
-                <q-chip
-                  class="q-mt-md"
-                  dense
-                  square
-                  :label="user.perNo + ' : ش پ'"
-                />
+                <q-chip class="q-mt-md q-pt-xs" dense square>
+                  <span
+                    class="display-block q-mr-xs"
+                    style="margin-top: -5px; font-size: 12px"
+                  >
+                    {{ user.PerNo ? "ش پ" : "ش م" }} :
+                  </span>
+                  {{ user.PerNo ? user.PerNo : user.NationalID }}
+                </q-chip>
                 <div class="text-subtitle1 q-mb-xs">
-                  <q-chip dense square outline>
-                    {{ user ? user.rank : "" }}
-                  </q-chip>
-                  {{ user ? user.name + " " + user.family : "" }}
+                  <span class="text-grey text-italic">
+                    {{ user ? user.Rank : "" }}
+                  </span>
+                  {{ user ? user.Name + " " + user.Family : "" }}
                 </div>
 
-                <q-btn-group class="q-mt-sm">
+                <q-btn-group class="q-mt-xs">
                   <q-btn
                     :color="user ? 'negative' : 'positive'"
                     :label="user ? 'خروج' : 'ورود'"
@@ -80,7 +83,7 @@
                 /></q-btn-group>
 
                 <q-input
-                  v-model="user.department"
+                  v-model="user.Department"
                   class="q-mt-md"
                   type="textarea"
                   label="قسمت"
@@ -92,6 +95,16 @@
               </div>
             </div>
           </q-btn-dropdown>
+          <q-btn
+            v-else
+            size="13px"
+            color="grey-1"
+            push
+            to="/login"
+            text-color="dark"
+            icon="login"
+            label="ورود به سامانه"
+          />
         </q-toolbar-title>
 
         <div>آمار - نسخه {{ appVersion }}</div>
@@ -107,7 +120,7 @@
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label header> منوی دسترسی </q-item-label>
+        <q-item-label header> دسترسی سامانه </q-item-label>
 
         <EssentialLink
           v-for="link in essentialLinks"
@@ -129,46 +142,21 @@ import { appVersion } from "../store/variables.js";
 
 const linksList = [
   {
-    title: "پرسنل قسمت",
+    title: "لیست کاربران",
+    icon: "manage_accounts",
+    link: "/users",
+  },
+  {
+    title: "لیست افراد",
     caption: "ویرایش اطلاعات",
-    icon: "group",
-    link: "https://quasar.dev",
+    icon: "people",
+    link: "/people",
   },
   {
-    title: "Github",
-    caption: "github.com/quasarframework",
-    icon: "code",
-    link: "https://github.com/quasarframework",
-  },
-  {
-    title: "Discord Chat Channel",
-    caption: "chat.quasar.dev",
-    icon: "chat",
-    link: "https://chat.quasar.dev",
-  },
-  {
-    title: "Forum",
-    caption: "forum.quasar.dev",
-    icon: "record_voice_over",
-    link: "https://forum.quasar.dev",
-  },
-  {
-    title: "Twitter",
-    caption: "@quasarframework",
-    icon: "rss_feed",
-    link: "https://twitter.quasar.dev",
-  },
-  {
-    title: "Facebook",
-    caption: "@QuasarFramework",
-    icon: "public",
-    link: "https://facebook.quasar.dev",
-  },
-  {
-    title: "Quasar Awesome",
-    caption: "Community Quasar projects",
-    icon: "favorite",
-    link: "https://awesome.quasar.dev",
+    title: "آمار",
+    caption: "مشاهده و ثبت",
+    icon: "receipt_long",
+    link: "/stats",
   },
 ];
 
@@ -197,6 +185,17 @@ export default defineComponent({
   computed: {
     // mix the getters into computed with object spread operator
     ...mapGetters({ user: "user/getUserData" }),
+  },
+  methods: {
+    logout() {
+      this.$store.commit("user/logout");
+      this.$q.notify({
+        color: "light-blue-4",
+        icon: "logout",
+        message: "خروج موفق",
+      });
+      this.$router.push("/login");
+    },
   },
 });
 </script>

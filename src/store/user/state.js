@@ -1,13 +1,9 @@
 export default function () {
   return {
-    data: {
-      rank: "ستوانسوم",
-      name: "حسین",
-      family: "حیدری",
-      department: "مدیریت نیروی انسانی",
-      photo: "",
-      perNo: "12345678",
-      scopes: [],
-    },
+    signinPending: false,
+    inboundRequestsCount: null,
+    userTCookieName: "t=",
+    data: null,
+    t: null,
   };
 }

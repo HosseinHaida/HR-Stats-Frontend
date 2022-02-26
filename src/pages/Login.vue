@@ -2,7 +2,7 @@
   <QPage
     class="window-height window-width row justify-center items-center bg-grey-1"
   >
-    <div class="column">
+    <q-form @submit="onSubmit" class="column">
       <div class="row">
         <q-card class="login-card q-pa-sm" flat bordered>
           <q-card-section class="row justify-center">
@@ -12,6 +12,9 @@
             >
               آمار و اطلاعات پرسنل
             </h5>
+            <div class="text-bold text-grey-9 q-mt-xs">
+              فرماندهی آموزش های هوایی شهید خضرایی
+            </div>
           </q-card-section>
           <q-card-section class="row justify-center">
             <img
@@ -22,7 +25,7 @@
           </q-card-section>
 
           <q-card-section class="q-pa-sm q-gutter-sm q-mb-sm">
-            <q-input filled v-model="email" label="شماره کارگزینی">
+            <q-input filled v-model="userID" label="شماره کارگزینی">
               <template v-slot:prepend>
                 <q-icon name="person" />
               </template>
@@ -42,28 +45,65 @@
 
           <q-card-actions>
             <q-btn
+              :loading="signinPending"
               color="primary"
+              type="submit"
               align="around"
               class="btn-fixed-width"
               label="ورود"
               icon="login"
-              to="/"
             >
             </q-btn>
           </q-card-actions>
         </q-card>
       </div>
-    </div>
+    </q-form>
   </QPage>
 </template>
 
 <script>
 export default {
-  setup() {
+  data() {
     return {
-      email: "",
+      userID: "",
       password: "",
     };
+  },
+  // setup() {
+  //   return {
+  //     perNo: "",
+  //     password: "",
+  //   };
+  // },
+  methods: {
+    onSubmit() {
+      this.$store
+        .dispatch("user/signin", {
+          userID: this.userID,
+          password: this.password,
+        })
+        .then(({ status, message }) => {
+          if (status === "error") {
+            this.$q.notify({
+              color: "red-5",
+              icon: "warning",
+              message: message,
+            });
+          } else if (status === "success") {
+            this.$q.notify({
+              color: "green-4",
+              icon: "login",
+              message: message,
+            });
+            this.$router.push("/");
+          }
+        });
+    },
+  },
+  computed: {
+    signinPending() {
+      return this.$store.state.user.signinPending;
+    },
   },
 };
 </script>

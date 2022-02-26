@@ -42,7 +42,7 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
-      vueRouterMode: "hash", // available values: 'hash', 'history'
+      vueRouterMode: "history", // available values: 'hash', 'history'
       rtl: true,
       // transpile: false,
       // publicPath: '/',
@@ -94,7 +94,11 @@ module.exports = configure(function (ctx) {
       // directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: [
+        "Notify",
+        // "Dialog",
+        // "Loading"
+      ],
     },
 
     // animations: 'all', // --- includes all animations
@@ -140,8 +144,8 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: `HN Stats`,
-        short_name: `HN Stats`,
+        name: `HR Stats`,
+        short_name: `HR Stats`,
         description: `Automation For Human Resources Stats Registration`,
         display: "standalone",
         orientation: "portrait",

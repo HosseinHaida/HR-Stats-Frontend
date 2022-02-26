@@ -2,7 +2,17 @@ const routes = [
   {
     path: "/",
     component: () => import("layouts/MainLayout.vue"),
-    children: [{ path: "", component: () => import("pages/Index.vue") }],
+    // beforeEnter: (to, from) => {
+    //   // reject the navigation
+    //   console.log(store);
+    //   if (!user.data) return false;
+    //   else return true;
+    // },
+    children: [
+      { path: "", component: () => import("pages/Index.vue") },
+      { path: "/people", component: () => import("pages/People.vue") },
+      { path: "/users", component: () => import("pages/Users.vue") },
+    ],
   },
   {
     path: "/login",
