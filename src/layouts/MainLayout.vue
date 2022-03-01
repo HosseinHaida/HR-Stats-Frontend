@@ -2,24 +2,9 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
+        <q-btn flat icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title class="q-py-xs">
-          <!-- <q-btn color="white" class="text-black" push>
-            <div class="row items-center no-wrap">
-              <div class="text-center q-pr-md">
-                {{ user.Name + " " + user.Family }}
-              </div>
-              <q-icon left name="person" class="q-mr-none" />
-            </div>
-          </q-btn> -->
           <q-btn-dropdown
             v-if="user"
             size="13px"
@@ -39,7 +24,7 @@
 
             <div class="row no-wrap q-pa-md">
               <div class="column items-center" style="min-width: 110px">
-                <q-avatar size="72px">
+                <q-avatar class="user-photo-avatar" size="72px">
                   <q-img :ratio="1" :src="user.Photo" />
                   <span
                     class="user-photo-placeholder border: 1px solid black"
@@ -60,9 +45,9 @@
                   {{ user.PerNo ? user.PerNo : user.NationalID }}
                 </q-chip>
                 <div class="text-subtitle1 q-mb-xs">
-                  <span class="text-grey text-italic">
+                  <!-- <span class="text-grey text-italic">
                     {{ user ? user.Rank : "" }}
-                  </span>
+                  </span> -->
                   {{ user ? user.Name + " " + user.Family : "" }}
                 </div>
 
@@ -105,20 +90,24 @@
             icon="login"
             label="ورود به سامانه"
           />
+
+          <q-btn class="q-ml-sm" to="/" flat>
+            <q-icon name="home" />
+          </q-btn>
         </q-toolbar-title>
 
         <div>آمار - نسخه {{ appVersion }}</div>
 
-        <img
-          alt="Quasar logo"
+        <!-- <img
+          alt="HR App Logo"
           src="~assets/Roundel_of_Iran.png"
           class="q-ml-md"
           style="width: 35px; height: 35px"
-        />
+        /> -->
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer v-model="leftDrawerOpen" bordered>
       <q-list>
         <q-item-label header> دسترسی سامانه </q-item-label>
 
@@ -147,8 +136,8 @@ const linksList = [
     link: "/users",
   },
   {
-    title: "لیست افراد",
-    caption: "ویرایش اطلاعات",
+    title: "لیست پرسنل",
+    caption: "کارکنان پایور و وظیفه",
     icon: "people",
     link: "/people",
   },
@@ -201,6 +190,9 @@ export default defineComponent({
 </script>
 <style lang="sass" scoped>
 .user-photo-placeholder
-  margin-top: -96%
+  margin-top: -107%
+  font-size: 26px
   color: $primary
+.user-photo-avatar
+  border: 1px solid $primary
 </style>

@@ -62,19 +62,18 @@
 </template>
 
 <script>
+import { ref } from "vue";
+
 export default {
-  data() {
+  setup() {
+    const userID = ref("");
+    const password = ref("");
+
     return {
-      userID: "",
-      password: "",
+      userID,
+      password,
     };
   },
-  // setup() {
-  //   return {
-  //     perNo: "",
-  //     password: "",
-  //   };
-  // },
   methods: {
     onSubmit() {
       this.$store

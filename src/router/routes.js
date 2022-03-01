@@ -1,3 +1,5 @@
+import user from "src/store/user";
+
 const routes = [
   {
     path: "/",

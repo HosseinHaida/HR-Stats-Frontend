@@ -8,6 +8,7 @@
       :visible-columns="visibleColumns"
       table-header-class="bg-grey-2"
       @row-click="somePeopleIsSelected"
+      :pagination="initialPagination"
     >
       <template v-slot:top="props">
         <q-btn
@@ -21,7 +22,6 @@
         <q-select
           v-model="visibleColumns"
           multiple
-          outlined
           dense
           options-dense
           :display-value="$q.lang.table.columns"
@@ -30,40 +30,98 @@
           :options="columns"
           option-value="name"
           options-cover
-          style="min-width: 150px"
         />
 
         <q-input
           class="q-mx-md col"
           filled
-          v-model="usersSearch"
+          v-model="peopleSearchText"
           dense
+          debounce="400"
           label="جستجو"
-        ></q-input>
-        <q-btn outline color="primary" dense icon="add"></q-btn>
-        <q-btn outline color="primary" class="q-ml-sm q-pl-sm" dense>
-          افزودن از فایل اکسل
-          <q-icon name="post_add" class="q-mx-sm" />
+        />
+        <q-btn outline color="primary" dense icon="add">
+          <q-tooltip>افزودن تکی پرسنل</q-tooltip>
         </q-btn>
+        <q-file
+          class="q-mx-xs q-pl-sm ellipsis"
+          dense
+          accept=".xlsx"
+          v-model="excelFile"
+          label="افزودن از فایل اکسل"
+          :borderless="!!excelFile"
+          :filled="!excelFile"
+          style="max-width: 235px"
+        >
+          <template v-slot:append>
+            <q-icon v-if="!excelFile" name="post_add" class="cursor-pointer" />
+          </template>
+
+          <template v-slot:prepend>
+            <q-btn
+              v-if="excelFile"
+              class="q-mr-sm"
+              color="positive"
+              push
+              dense
+              icon="upload"
+              @click="uploadExcelFile()"
+              :loading="excelUploadPending"
+            >
+              <q-tooltip>آپلود فایل انتخابی</q-tooltip>
+            </q-btn>
+          </template>
+        </q-file>
         <q-btn
-          class="q-mx-sm q-pl-sm"
+          class="q-mx-sm q-pl-sm q-pr-none"
           no-caps
           dense
           outline
-          @click="exportPeople()"
+          @click="exportPeople"
         >
           زخیره فایل csv
           <q-icon name="archive" class="q-mx-sm" />
         </q-btn>
-        <q-icon class="q-mr-sm q-ml-md" size="sm" name="group" />
+        <!-- <q-icon class="q-mr-sm q-ml-md" size="sm" name="group" /> -->
+        <q-select
+          v-if="user && user.permissions"
+          class="q-ml-xs ellipsis"
+          style="max-width: 100px"
+          filled
+          multiple
+          dense
+          v-model="selectedDepartments"
+          :options="user.permissions.permittedDepartments"
+        >
+          <!-- @filter="filterFn" -->
+          <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
+            <q-item style="min-width: 250px" v-bind="itemProps">
+              <q-item-section>
+                <q-item-label v-html="opt.label" />
+              </q-item-section>
+              <q-item-section side>
+                <q-toggle
+                  dense
+                  size="sm"
+                  :model-value="selected"
+                  @update:model-value="toggleOption(opt.value)"
+                />
+              </q-item-section>
+            </q-item>
+          </template>
+          <template v-slot:prepend>
+            <q-icon name="group" />
+          </template>
+        </q-select>
       </template>
     </q-table>
   </q-page>
 </template>
 
 <script>
-import { ref } from "vue";
 import { exportFile, useQuasar } from "quasar";
+import { mapGetters, useStore } from "vuex";
+import { onMounted, computed, ref } from "vue";
 
 const columns = [
   {
@@ -105,44 +163,6 @@ const columns = [
   },
 ];
 
-const rows = [
-  {
-    Rank: "سروان",
-    Name: "عباس",
-    Family: "شفتلیان",
-    PerNo: "12345678",
-    Department: "نیرو انسانی",
-  },
-  {
-    Rank: "ستوانسوم",
-    Name: "حسین",
-    Family: "حیدری",
-    PerNo: "12345678",
-    Department: "دژبان",
-  },
-  {
-    Rank: "سرباز",
-    Name: "محمد",
-    Family: "قرگوزلو",
-    PerNo: "12345678",
-    Department: "موزیک",
-  },
-  {
-    Rank: "سرهنگدوم",
-    Name: "عبدالله",
-    Family: "رامبیان",
-    PerNo: "12345678",
-    Department: "قرارگاه",
-  },
-  {
-    Rank: "گروهبانسوم",
-    Name: "ابوالفظل",
-    Family: "مددی",
-    PerNo: "12345678",
-    Department: "تاسیسات",
-  },
-];
-
 const militaryBaseName = "Khazraii";
 const currentDepartment = "HR";
 
@@ -158,13 +178,78 @@ function wrapCsvValue(val, formatFn) {
 export default {
   setup() {
     const $q = useQuasar();
+    const excelFile = ref(null);
+    let peopleSearchText = ref(null);
+
+    const store = useStore();
+
+    let initialPagination = {
+      sortBy: "desc",
+      descending: false,
+      page: 1,
+      rowsPerPage: 5,
+      // rowsNumber: xx if getting data from a server
+    };
+
+    const fetchPeople = (goToFirstPage) => {
+      if (goToFirstPage === true) {
+        initialPagination.page = 1;
+      }
+      store
+        .dispatch("people/fetchPeople", {
+          // type: this.type,
+          page: initialPagination.page,
+          howMany: initialPagination.rowsPerPage,
+          searchText: peopleSearchText.value,
+          // departments: selectedDepartmentss,
+        })
+        .then(({ status, message }) => {
+          if (status === "error") {
+            $q.notify({
+              color: "red-5",
+              icon: "warning",
+              message: message,
+            });
+          }
+        });
+    };
+
+    let selectedDepartments = ref(null);
+
+    onMounted(() => {
+      fetchPeople(true);
+    });
 
     return {
       visibleColumns: ref(["Name", "Family", "PerNo", "Rank", "Department"]),
       columns,
-      rows,
+      excelFile,
+      peopleSearchText,
+      initialPagination,
+      fetchPeople,
+      selectedDepartments,
 
-      usersSearch: "",
+      user: computed(() => store.state.user.data),
+      rows: computed(() => store.state.people.list),
+
+      // filterFn(val, update) {
+      //   if (val === "") {
+      //     update(() => {
+      //       permittedDepartments.value = selectedDepartments;
+
+      //       // here you have access to "ref" which
+      //       // is the Vue reference of the QSelect
+      //     });
+      //     return;
+      //   }
+
+      //   update(() => {
+      //     const needle = val;
+      //     permittedDepartments.value = selectedDepartments.value.filter(
+      //       (v) => v.label.indexOf(needle) > -1
+      //     );
+      //   });
+      // },
 
       exportPeople() {
         const content = [columns.map((col) => wrapCsvValue(col.label))]
@@ -196,11 +281,44 @@ export default {
           });
         }
       },
+
+      uploadExcelFile() {
+        if (this.excelFile) {
+          const formData = new FormData();
+          formData.append("excelFile", this.excelFile);
+          store
+            .dispatch("people/uploadExcel", formData)
+            .then(({ status, message }) => {
+              if (status === "error") {
+                $q.notify({
+                  color: "red-5",
+                  icon: "warning",
+                  message: message,
+                });
+              } else if (status === "success") {
+                $q.notify({
+                  color: "green-4",
+                  icon: "cloud_done",
+                  message: message,
+                });
+              }
+            });
+        }
+      },
+
+      somePeopleIsSelected(evt, row) {
+        console.log(row);
+      },
     };
   },
-  methods: {
-    somePeopleIsSelected(evt, row) {
-      console.log(row);
+  computed: {
+    ...mapGetters({
+      excelUploadPending: "people/getExcelUploadPending",
+    }),
+  },
+  watch: {
+    peopleSearchText: function (val) {
+      this.fetchPeople(true);
     },
   },
 };

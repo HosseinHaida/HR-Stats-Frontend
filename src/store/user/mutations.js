@@ -36,3 +36,7 @@ export function logout(state) {
   state.inboundRequestsCount = null;
   document.cookie = "t=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/";
 }
+
+export function setDepartmentsList(state, departments) {
+  state.departments = departments;
+}
