@@ -75,18 +75,18 @@
 
 <script>
 import { defineComponent } from "vue";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "PageIndex",
   setup() {
+    const router = useRouter();
     return {
       // date: "1375/08/09",
+      goTo(where) {
+        router.push(where);
+      },
     };
-  },
-  methods: {
-    goTo(where) {
-      this.$router.push(where);
-    },
   },
 });
 </script>

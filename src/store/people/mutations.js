@@ -13,3 +13,7 @@ export function setPeopleList(state, list) {
 export function setPeopleListTotals(state, { pages, count }) {
   state.total = { pages: Number(pages), count: Number(count) };
 }
+
+export function setInsertPending(state, status) {
+  state.insertPending = status;
+}

@@ -5,4 +5,5 @@ export const messages = {
   excelFileUploadedSuccess: "فایل اکسل با موفقیت افزوده شد",
   peopleFetchSuccessful: "لیست پرسنل بارگزاری شد",
   departmentsFetchSuccessful: "لیست قسمت های مجاز برای شما بارگزاری شد",
+  personAdded: "پرسنل اضافه شد",
 };

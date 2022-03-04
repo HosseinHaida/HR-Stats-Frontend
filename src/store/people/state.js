@@ -4,5 +4,6 @@ export default function () {
     peopleFetchPending: false,
     list: [],
     total: { pages: 1, count: 0 },
+    insertPending: false,
   };
 }

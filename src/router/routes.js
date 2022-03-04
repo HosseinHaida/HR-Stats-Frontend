@@ -13,6 +13,7 @@ const routes = [
     children: [
       { path: "", component: () => import("pages/Index.vue") },
       { path: "/people", component: () => import("pages/People.vue") },
+      { path: "/people/add", component: () => import("pages/PeopleAdd.vue") },
       { path: "/users", component: () => import("pages/Users.vue") },
     ],
   },

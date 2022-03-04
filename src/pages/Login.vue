@@ -62,47 +62,52 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import { useStore } from "vuex";
+import { useQuasar } from "quasar";
+import { useRouter } from "vue-router";
 
 export default {
   setup() {
-    const userID = ref("");
-    const password = ref("");
+    const store = useStore();
+    const router = useRouter();
+
+    const $q = useQuasar();
+
+    const userID = ref(null);
+    const password = ref(null);
+
+    const signinPending = computed(() => store.state.user.signinPending);
 
     return {
       userID,
       password,
+      signinPending,
+
+      onSubmit() {
+        store
+          .dispatch("user/signin", {
+            userID: userID.value,
+            password: password.value,
+          })
+          .then(({ status, message }) => {
+            if (status === "error") {
+              $q.notify({
+                color: "red-5",
+                icon: "warning",
+                message: message,
+              });
+            } else if (status === "success") {
+              $q.notify({
+                color: "green-4",
+                icon: "login",
+                message: message,
+              });
+              router.push("/");
+            }
+          });
+      },
     };
-  },
-  methods: {
-    onSubmit() {
-      this.$store
-        .dispatch("user/signin", {
-          userID: this.userID,
-          password: this.password,
-        })
-        .then(({ status, message }) => {
-          if (status === "error") {
-            this.$q.notify({
-              color: "red-5",
-              icon: "warning",
-              message: message,
-            });
-          } else if (status === "success") {
-            this.$q.notify({
-              color: "green-4",
-              icon: "login",
-              message: message,
-            });
-            this.$router.push("/");
-          }
-        });
-    },
-  },
-  computed: {
-    signinPending() {
-      return this.$store.state.user.signinPending;
-    },
   },
 };
 </script>

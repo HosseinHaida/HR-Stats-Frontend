@@ -40,38 +40,45 @@
           debounce="400"
           label="جستجو"
         />
-        <q-btn outline color="primary" dense icon="add">
+        <q-btn outline color="primary" to="/people/add" dense icon="add">
           <q-tooltip>افزودن تکی پرسنل</q-tooltip>
         </q-btn>
-        <q-file
-          class="q-mx-xs q-pl-sm ellipsis"
-          dense
-          accept=".xlsx"
-          v-model="excelFile"
-          label="افزودن از فایل اکسل"
-          :borderless="!!excelFile"
-          :filled="!excelFile"
-          style="max-width: 235px"
-        >
-          <template v-slot:append>
-            <q-icon v-if="!excelFile" name="post_add" class="cursor-pointer" />
-          </template>
+        <q-form class="q-mx-xs q-pl-sm">
+          <q-file
+            class="ellipsis"
+            dense
+            accept=".xlsx"
+            v-model="excelFile"
+            label="افزودن از فایل اکسل"
+            :borderless="!!excelFile"
+            :filled="!excelFile"
+            style="max-width: 235px"
+          >
+            <template v-slot:append>
+              <q-icon
+                v-if="!excelFile"
+                name="post_add"
+                class="cursor-pointer"
+              />
+            </template>
 
-          <template v-slot:prepend>
-            <q-btn
-              v-if="excelFile"
-              class="q-mr-sm"
-              color="positive"
-              push
-              dense
-              icon="upload"
-              @click="uploadExcelFile()"
-              :loading="excelUploadPending"
-            >
-              <q-tooltip>آپلود فایل انتخابی</q-tooltip>
-            </q-btn>
-          </template>
-        </q-file>
+            <template v-slot:prepend>
+              <q-btn
+                v-if="excelFile"
+                class="q-mr-sm"
+                color="positive"
+                push
+                dense
+                icon="upload"
+                @click="uploadExcelFile()"
+                :loading="excelUploadPending"
+              >
+                <q-tooltip>آپلود فایل انتخابی</q-tooltip>
+              </q-btn>
+            </template>
+          </q-file>
+        </q-form>
+
         <q-btn
           class="q-mx-sm q-pl-sm q-pr-none"
           no-caps
@@ -121,47 +128,8 @@
 <script>
 import { exportFile, useQuasar } from "quasar";
 import { mapGetters, useStore } from "vuex";
-import { onMounted, computed, ref } from "vue";
-
-const columns = [
-  {
-    name: "Rank",
-    label: "درجه",
-    align: "left",
-    field: "Rank",
-    sortable: true,
-  },
-  {
-    name: "Name",
-    required: true,
-    label: "نام",
-    align: "left",
-    field: (row) => row.Name,
-    format: (val) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: "Family",
-    label: "نشان",
-    align: "left",
-    field: "Family",
-    sortable: true,
-  },
-  {
-    name: "PerNo",
-    label: "شماره کارگزینی",
-    align: "left",
-    field: "PerNo",
-    sortable: true,
-  },
-  {
-    name: "Department",
-    label: "قسمت",
-    align: "left",
-    field: "Department",
-    sortable: true,
-  },
-];
+import { onMounted, computed, ref, watch } from "vue";
+import { ranks } from "../store/variables.js";
 
 const militaryBaseName = "Khazraii";
 const currentDepartment = "HR";
@@ -180,14 +148,62 @@ export default {
     const $q = useQuasar();
     const excelFile = ref(null);
     let peopleSearchText = ref(null);
-
     const store = useStore();
+
+    const departments = computed(() =>
+      Object.assign(
+        {},
+        ...store.state.user.departments.map(({ label, value }) => ({
+          [value]: label,
+        }))
+      )
+    );
+
+    const columns = [
+      {
+        name: "Rank",
+        label: "درجه",
+        align: "left",
+        field: (row) => ranks[row.Rank],
+        sortable: true,
+      },
+      {
+        name: "Name",
+        required: true,
+        label: "نام",
+        align: "left",
+        field: (row) => row.Name,
+        format: (val) => `${val}`,
+        sortable: true,
+      },
+      {
+        name: "Family",
+        label: "نشان",
+        align: "left",
+        field: "Family",
+        sortable: true,
+      },
+      {
+        name: "PerNo",
+        label: "شماره کارگزینی",
+        align: "left",
+        field: "PerNo",
+        sortable: true,
+      },
+      {
+        name: "Department",
+        label: "قسمت",
+        align: "left",
+        field: (row) => departments.value[row.Department],
+        sortable: true,
+      },
+    ];
 
     let initialPagination = {
       sortBy: "desc",
       descending: false,
       page: 1,
-      rowsPerPage: 5,
+      rowsPerPage: 7,
       // rowsNumber: xx if getting data from a server
     };
 
@@ -214,11 +230,19 @@ export default {
         });
     };
 
+    watch(peopleSearchText, (value) => {
+      fetchPeople(true);
+    });
+
     let selectedDepartments = ref(null);
 
     onMounted(() => {
       fetchPeople(true);
     });
+
+    // Computed
+    const user = computed(() => store.state.user.data);
+    const rows = computed(() => store.state.people.list);
 
     return {
       visibleColumns: ref(["Name", "Family", "PerNo", "Rank", "Department"]),
@@ -226,35 +250,19 @@ export default {
       excelFile,
       peopleSearchText,
       initialPagination,
-      fetchPeople,
       selectedDepartments,
+      departments,
+      ranks,
 
-      user: computed(() => store.state.user.data),
-      rows: computed(() => store.state.people.list),
+      user,
+      rows,
 
-      // filterFn(val, update) {
-      //   if (val === "") {
-      //     update(() => {
-      //       permittedDepartments.value = selectedDepartments;
-
-      //       // here you have access to "ref" which
-      //       // is the Vue reference of the QSelect
-      //     });
-      //     return;
-      //   }
-
-      //   update(() => {
-      //     const needle = val;
-      //     permittedDepartments.value = selectedDepartments.value.filter(
-      //       (v) => v.label.indexOf(needle) > -1
-      //     );
-      //   });
-      // },
-
+      // Methods
+      fetchPeople,
       exportPeople() {
         const content = [columns.map((col) => wrapCsvValue(col.label))]
           .concat(
-            rows.map((row) =>
+            rows.value.map((row) =>
               columns
                 .map((col) =>
                   wrapCsvValue(
@@ -283,9 +291,9 @@ export default {
       },
 
       uploadExcelFile() {
-        if (this.excelFile) {
+        if (excelFile.value) {
           const formData = new FormData();
-          formData.append("excelFile", this.excelFile);
+          formData.append("excel", excelFile.value);
           store
             .dispatch("people/uploadExcel", formData)
             .then(({ status, message }) => {
@@ -301,6 +309,9 @@ export default {
                   icon: "cloud_done",
                   message: message,
                 });
+
+                fetchPeople(true);
+                excelFile.value = null;
               }
             });
         }
@@ -315,11 +326,6 @@ export default {
     ...mapGetters({
       excelUploadPending: "people/getExcelUploadPending",
     }),
-  },
-  watch: {
-    peopleSearchText: function (val) {
-      this.fetchPeople(true);
-    },
   },
 };
 </script>

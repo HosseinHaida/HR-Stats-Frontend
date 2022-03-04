@@ -149,8 +149,10 @@ const linksList = [
   },
 ];
 
-import { defineComponent, ref } from "vue";
-import { mapGetters } from "vuex";
+import { computed, defineComponent, ref } from "vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   name: "MainLayout",
@@ -160,31 +162,34 @@ export default defineComponent({
   },
 
   setup() {
+    const store = useStore();
+    const router = useRouter();
+    const $q = useQuasar();
+
     const leftDrawerOpen = ref(false);
+
+    const user = computed(() => store.state.user.data);
 
     return {
       essentialLinks: linksList,
       appVersion,
       leftDrawerOpen,
+      user,
+
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
+
+      logout() {
+        store.commit("user/logout");
+        $q.notify({
+          color: "light-blue-4",
+          icon: "logout",
+          message: "خروج موفق",
+        });
+        router.push("/login");
+      },
     };
-  },
-  computed: {
-    // mix the getters into computed with object spread operator
-    ...mapGetters({ user: "user/getUserData" }),
-  },
-  methods: {
-    logout() {
-      this.$store.commit("user/logout");
-      this.$q.notify({
-        color: "light-blue-4",
-        icon: "logout",
-        message: "خروج موفق",
-      });
-      this.$router.push("/login");
-    },
   },
 });
 </script>

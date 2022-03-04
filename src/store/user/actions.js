@@ -10,12 +10,7 @@ export async function signin({ commit }, userCredentials) {
       if (res.data.user) {
         commit("setUserData", res.data.user);
         commit("setCookie", res.data.user.token);
-        // if (res.data.user.outbound_requests) {
-        //   commit("setUserRequests", res.data.user.outbound_requests);
-        // }
-        // if (res.data.user.inbound_requests) {
-        //   commit("setUserRequestsInbound", res.data.user.inbound_requests);
-        // }
+        commit("setDepartmentsList", res.data.departments);
       }
 
       return {
@@ -65,16 +60,7 @@ export async function fetchUserData({ state, commit }) {
           if (res.data && res.data.user) {
             commit("setUserData", res.data.user);
             commit("setToken", t);
-            // if (res.data.user.outbound_requests) {
-            //   commit("setUserRequests", res.data.user.outbound_requests);
-            // }
-            // if (res.data.user.inbound_requests) {
-            //   commit("setUserRequestsInbound", res.data.user.inbound_requests);
-            //   commit(
-            //     "setUserInboundRequestsCount",
-            //     res.data.user.inbound_requests.length
-            //   );
-            // }
+            commit("setDepartmentsList", res.data.departments);
             return {
               status: "success",
               message: messages.fetchedMetaForUser + res.data.user.username,
