@@ -40,6 +40,37 @@
           debounce="400"
           label="جستجو"
         />
+
+        <q-select
+          v-if="user && user.permissions"
+          class="q-mx-xs ellipsis"
+          style="max-width: 150px"
+          filled
+          multiple
+          display-value="قسمت"
+          dense
+          v-model="selectedDepartments"
+          :options="user.permissions.permittedDepartments"
+        >
+          <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
+            <q-item style="min-width: 250px" v-bind="itemProps">
+              <q-item-section>
+                <q-item-label v-html="opt.label" />
+              </q-item-section>
+              <q-item-section side>
+                <q-toggle
+                  dense
+                  size="sm"
+                  :model-value="selected"
+                  @update:model-value="toggleOption(opt.value)"
+                />
+              </q-item-section>
+            </q-item>
+          </template>
+          <template v-slot:prepend>
+            <q-icon name="group" />
+          </template>
+        </q-select>
         <q-btn
           v-if="user && user.Department === '23'"
           outline
@@ -87,47 +118,14 @@
         </q-form>
 
         <q-btn
-          class="q-mx-sm q-pl-sm q-pr-none"
+          class="q-ml-sm q-pl-sm q-pr-none"
           no-caps
-          dense
           outline
           @click="exportPeople"
         >
-          زخیره فایل csv
+          فایل csv
           <q-icon name="archive" class="q-mx-sm" />
         </q-btn>
-        <!-- <q-icon class="q-mr-sm q-ml-md" size="sm" name="group" /> -->
-        <q-select
-          v-if="user && user.permissions"
-          class="q-ml-xs ellipsis"
-          style="max-width: 150px"
-          filled
-          multiple
-          display-value="قسمت"
-          dense
-          v-model="selectedDepartments"
-          :options="user.permissions.permittedDepartments"
-        >
-          <!-- @filter="filterFn" -->
-          <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
-            <q-item style="min-width: 250px" v-bind="itemProps">
-              <q-item-section>
-                <q-item-label v-html="opt.label" />
-              </q-item-section>
-              <q-item-section side>
-                <q-toggle
-                  dense
-                  size="sm"
-                  :model-value="selected"
-                  @update:model-value="toggleOption(opt.value)"
-                />
-              </q-item-section>
-            </q-item>
-          </template>
-          <template v-slot:prepend>
-            <q-icon name="group" />
-          </template>
-        </q-select>
       </template>
     </q-table>
   </q-page>

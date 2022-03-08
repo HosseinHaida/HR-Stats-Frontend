@@ -53,8 +53,6 @@ export default defineComponent({
       timeMinutes,
       timeHours,
       updateTime,
-      onUnmounted,
-      onMounted,
     };
   },
 });

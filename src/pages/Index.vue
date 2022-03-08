@@ -51,7 +51,7 @@
 
     <q-card class="main-page-tiles">
       <q-card-section
-        @click="goTo('/stats')"
+        @click="goTo('/stats/register')"
         class="bg-primary text-white main-page-tiles--header"
       >
         <div class="text-h6">آمار</div>

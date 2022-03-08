@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md row items-start">
     <div class="col-12">
-      <div class="row q-pb-sm">
+      <div class="row q-pb-sm items-center">
         <div class="col-6 q-pr-sm">
           <q-input
             filled
@@ -46,16 +46,16 @@
     </div>
     <div
       class="col-xs-12 col-sm-6 col-md-6 col-lg-4 q-pa-sm"
-      v-for="(user, i) in users"
+      v-for="(loopUser, i) in users"
       :key="i"
     >
       <q-card>
         <q-badge
           style="border-radius: 4px"
           class="q-px-sm q-py-xs"
-          :color="roles[user.Role].badgeColor"
+          :color="roles[loopUser.Role].badgeColor"
           floating
-          >{{ roles[user.Role].label }}</q-badge
+          >{{ roles[loopUser.Role].label }}</q-badge
         >
         <q-card-section horizontal>
           <q-card-section class="col-3 flex flex-center">
@@ -68,26 +68,33 @@
 
           <q-card-section class="col" q-pt-xs>
             <div>
-              {{ ranks[user.Rank] }}
-              {{ user.IsSoldier === "1" ? " وظیفه" : "" }}
+              {{ ranks[loopUser.Rank] }}
+              {{ loopUser.IsSoldier === "1" ? " وظیفه" : "" }}
             </div>
             <div style="font-size: 17px" class="q-mt-sm q-mb-xs">
-              {{ user.Name + " " + user.Family }}
+              {{ loopUser.Name + " " + loopUser.Family }}
             </div>
             <div class="text-caption">
-              {{ departmentsIndexed[user.AuthDepartmentID] }}
+              {{ departmentsIndexed[loopUser.AuthDepartmentID] }}
             </div>
           </q-card-section>
 
-          <q-card-section class="items-end q-py-sm row col justify-end">
+          <q-card-section
+            v-if="user && user.Department === '23'"
+            class="items-end q-py-sm row col justify-end"
+          >
             <div class="row">
-              <q-btn :to="'/users/' + user.PerNo" flat icon="manage_accounts" />
+              <q-btn
+                :to="'/users/' + loopUser.PerNo"
+                flat
+                icon="manage_accounts"
+              />
               <q-btn
                 @click="
                   confirmDeleteRole(
-                    user.PerNo,
-                    user.AuthDepartmentID,
-                    user.Role
+                    loopUser.PerNo,
+                    loopUser.AuthDepartmentID,
+                    loopUser.Role
                   )
                 "
                 flat
