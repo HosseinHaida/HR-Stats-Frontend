@@ -9,7 +9,7 @@
             dense
             debounce="400"
             label="جستجو"
-          ></q-input>
+          />
         </div>
         <div class="col q-pl-sm">
           <q-select
@@ -49,7 +49,7 @@
       v-for="(user, i) in users"
       :key="i"
     >
-      <q-card bordered flat>
+      <q-card>
         <q-badge
           style="border-radius: 4px"
           class="q-px-sm q-py-xs"

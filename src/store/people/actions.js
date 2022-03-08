@@ -6,8 +6,7 @@ export async function fetchPeople({ rootState, commit, dispatch }, config) {
   commit("setPeopleFetchPending", true);
   if (!rootState.user.t)
     await dispatch("user/fetchUserData", null, { root: true });
-  const url = `${apiUrl}/people/list/?page=${config.page}&how_many=${config.howMany}&search_text=${config.searchText}`;
-  // &departments=${config.departments}
+  const url = `${apiUrl}/people/list/?search_text=${config.searchText}&departments=${config.departments}`;
   return await axios
     .get(url, {
       headers: {

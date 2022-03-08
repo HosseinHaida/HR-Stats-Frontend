@@ -33,7 +33,7 @@
         />
 
         <q-input
-          class="q-mx-md col"
+          class="q-ml-md q-mr-sm col"
           filled
           v-model="peopleSearchText"
           dense
@@ -41,15 +41,16 @@
           label="جستجو"
         />
         <q-btn
-          v-if="user.Department === '23'"
+          v-if="user && user.Department === '23'"
           outline
+          class="q-ml-sm"
           color="primary"
           to="/people/add"
           icon="add"
         >
           <q-tooltip>افزودن تکی پرسنل</q-tooltip>
         </q-btn>
-        <q-form v-if="user.Department === '23'" class="q-mx-xs q-pl-sm">
+        <q-form v-if="user && user.Department === '23'" class="q-mx-xs q-pl-sm">
           <q-file
             class="ellipsis"
             dense
@@ -99,9 +100,10 @@
         <q-select
           v-if="user && user.permissions"
           class="q-ml-xs ellipsis"
-          style="max-width: 100px"
+          style="max-width: 150px"
           filled
           multiple
+          display-value="قسمت"
           dense
           v-model="selectedDepartments"
           :options="user.permissions.permittedDepartments"
@@ -217,20 +219,24 @@ export default {
       descending: false,
       page: 1,
       rowsPerPage: 7,
-      // rowsNumber: xx if getting data from a server
     };
 
     const fetchPeople = (goToFirstPage) => {
       if (goToFirstPage === true) {
         initialPagination.page = 1;
       }
+      let selectedDepartmentsIDs = [];
+      if (selectedDepartments.value) {
+        selectedDepartments.value.forEach((dep) => {
+          selectedDepartmentsIDs.push(dep.value);
+        });
+      }
       store
         .dispatch("people/fetchPeople", {
-          // type: this.type,
-          page: initialPagination.page,
-          howMany: initialPagination.rowsPerPage,
           searchText: peopleSearchText.value,
-          // departments: selectedDepartmentss,
+          departments: selectedDepartments.value
+            ? selectedDepartmentsIDs
+            : null,
         })
         .then(({ status, message }) => {
           if (status === "error") {
@@ -248,6 +254,10 @@ export default {
     });
 
     let selectedDepartments = ref(null);
+
+    watch(selectedDepartments, (value) => {
+      fetchPeople(true);
+    });
 
     onMounted(() => {
       fetchPeople(true);

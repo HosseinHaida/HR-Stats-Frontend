@@ -15,11 +15,11 @@
       </q-card-section>
 
       <q-card-actions vertical align="left">
-        <q-btn to="/users" color="deep-purple-9" class="q-pr-sm" flat>
+        <q-btn to="/users" color="deep-purple-9" class="q-pr-md" flat>
           <q-icon class="q-mr-sm" name="view_list" />
           مشاهده لیست
         </q-btn>
-        <q-btn color="deep-purple-9" class="q-pr-sm" flat>
+        <q-btn to="/users/new" color="deep-purple-9" class="q-pr-md" flat>
           <q-icon class="q-mr-sm" name="person_add" />
           افزودن
         </q-btn>
@@ -38,11 +38,11 @@
       </q-card-section>
 
       <q-card-actions vertical align="left">
-        <q-btn to="/people" color="teal-9" class="q-pr-sm" flat>
+        <q-btn to="/people" color="teal-9" class="q-pr-md" flat>
           <q-icon class="q-mr-sm" name="view_comfy" />
           مشاهده لیست
         </q-btn>
-        <q-btn to="/people/add" color="teal-9" class="q-pr-sm" flat>
+        <q-btn to="/people/add" color="teal-9" class="q-pr-md" flat>
           <q-icon class="q-mr-sm" name="group_add" />
           افزودن
         </q-btn>
@@ -58,11 +58,11 @@
       </q-card-section>
 
       <q-card-actions vertical align="left">
-        <q-btn color="primary" class="q-pr-sm" flat>
+        <q-btn color="primary" class="q-pr-md" flat>
           <q-icon class="q-mr-sm" name="view_module" />
           مشاهده
         </q-btn>
-        <q-btn color="primary" flat class="q-pr-sm">
+        <q-btn to="/stats/register" color="primary" flat class="q-pr-md">
           <q-icon class="q-mr-sm" name="library_add" />
           ثبت
         </q-btn>

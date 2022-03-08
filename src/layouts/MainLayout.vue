@@ -96,6 +96,8 @@
           </q-btn>
         </q-toolbar-title>
 
+        <LiveTime class="q-mr-md" />
+
         <div>آمار - نسخه {{ appVersion }}</div>
 
         <!-- <img
@@ -127,6 +129,7 @@
 
 <script>
 import EssentialLink from "components/EssentialLink.vue";
+import LiveTime from "components/LiveTime.vue";
 import { appVersion } from "../store/variables.js";
 
 const linksList = [
@@ -160,6 +163,7 @@ export default defineComponent({
 
   components: {
     EssentialLink,
+    LiveTime,
   },
 
   setup() {
