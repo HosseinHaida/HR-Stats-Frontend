@@ -40,10 +40,16 @@
           debounce="400"
           label="جستجو"
         />
-        <q-btn outline color="primary" to="/people/add" dense icon="add">
+        <q-btn
+          v-if="user.Department === '23'"
+          outline
+          color="primary"
+          to="/people/add"
+          icon="add"
+        >
           <q-tooltip>افزودن تکی پرسنل</q-tooltip>
         </q-btn>
-        <q-form class="q-mx-xs q-pl-sm">
+        <q-form v-if="user.Department === '23'" class="q-mx-xs q-pl-sm">
           <q-file
             class="ellipsis"
             dense

@@ -207,7 +207,7 @@ export default defineComponent({
 <style lang="sass" scoped>
 .user-photo-placeholder
   margin-top: -107%
-  font-size: 26px
+  font-size: 22px
   color: $primary
 .user-photo-avatar
   border: 1px solid $primary

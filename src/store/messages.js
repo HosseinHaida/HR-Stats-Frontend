@@ -7,4 +7,5 @@ export const messages = {
   departmentsFetchSuccessful: "لیست قسمت های مجاز برای شما بارگزاری شد",
   personAdded: "پرسنل اضافه شد",
   userAdded: "کاربر اضافه شد",
+  authDeletedSuccessfully: "حذف نقش موفقیت آمیز",
 };

@@ -56,7 +56,6 @@
           <q-select
             filled
             v-model="selectedRole"
-            use-input
             input-debounce="0"
             label="نقش"
             :options="roleOptions"
@@ -159,9 +158,9 @@ export default {
         Name: newUser.value && newUser.value ? newUser.value[0].value : null,
         Family: newUser.value && newUser.value ? newUser.value[1].value : null,
         NewPerNo:
-          newUser.value && newUser.value ? newUser.value[2].value : "00000000",
+          newUser.value && newUser.value ? newUser.value[3].value : "00000000",
         NewNationalID:
-          newUser.value && newUser.value ? newUser.value[3].value : null,
+          newUser.value && newUser.value ? newUser.value[2].value : null,
         Department:
           selectedDepartment && selectedDepartment.value
             ? selectedDepartment.value.value

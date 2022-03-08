@@ -78,3 +78,39 @@ export async function insertUser({ rootState, commit }, newUser) {
       }
     );
 }
+
+export async function deleteAuth(
+  { rootState, commit },
+  { userID, departmentID, role }
+) {
+  return await axios
+    .delete(`${apiUrl}/users/roles/delete/${userID}/${departmentID}/${role}`, {
+      headers: {
+        token: rootState.user.t,
+      },
+    })
+    .then(
+      (res) => {
+        if (res.data && res.data.users) {
+          commit("setUsersList", res.data.users);
+        }
+        console.log(res.data);
+        return {
+          status: "success",
+          message: messages.authDeletedSuccessfully,
+        };
+      },
+      (error) => {
+        if (!error.response) {
+          return {
+            status: "error",
+            message: messages.noConnection,
+          };
+        }
+        return {
+          status: "error",
+          message: error.response.data.error,
+        };
+      }
+    );
+}
