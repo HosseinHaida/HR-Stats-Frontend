@@ -6,4 +6,5 @@ export const messages = {
   peopleFetchSuccessful: "لیست پرسنل بارگزاری شد",
   departmentsFetchSuccessful: "لیست قسمت های مجاز برای شما بارگزاری شد",
   personAdded: "پرسنل اضافه شد",
+  userAdded: "کاربر اضافه شد",
 };

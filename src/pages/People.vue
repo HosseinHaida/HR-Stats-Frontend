@@ -197,6 +197,13 @@ export default {
         field: (row) => departments.value[row.Department],
         sortable: true,
       },
+      {
+        name: "IsSoldier",
+        label: "نوع",
+        align: "left",
+        field: (row) => (row.IsSoldier === "1" ? "وظیفه" : "پایور"),
+        sortable: true,
+      },
     ];
 
     let initialPagination = {
@@ -318,7 +325,7 @@ export default {
       },
 
       somePeopleIsSelected(evt, row) {
-        console.log(row);
+        // console.log(row);
       },
     };
   },

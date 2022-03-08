@@ -2,6 +2,39 @@ export const appVersion = "۰.۹";
 // export const apiUrl = "http://10.25.245.51:3000/api/v1";
 export const apiUrl = "http://localhost:3000/api/v1";
 
+export const roles = {
+  can_do_all: {
+    label: "ادمین",
+    // color: "bg-primary text-white",
+    badgeColor: "primary",
+  },
+  operator: {
+    label: "متصدی آمار",
+    // color: "bg-teal-4 text-white",
+    badgeColor: "teal",
+  },
+  admin_head: {
+    label: "رئیس اداری",
+    // color: "bg-blue-2",
+    badgeColor: "blue",
+  },
+  admin_succ: {
+    label: "جانشین اداری",
+    // color: "bg-blue-1",
+    badgeColor: "blue-4",
+  },
+  head: {
+    label: "فرمانده",
+    // color: "bg-pink-2",
+    badgeColor: "pink",
+  },
+  succ: {
+    label: "جانشین",
+    //  color: "bg-pink-1",
+    badgeColor: "pink-4",
+  },
+};
+
 export const ranks = {
   "000": "نامشخص",
   100: "محصل پيماني",

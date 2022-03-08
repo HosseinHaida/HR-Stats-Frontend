@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md q-gutter-md">
-    <q-form @submit="addPerson()">
+    <q-form @submit="addUser()">
       <div class="row">
         <div class="col-4 q-pa-sm">
           <q-select
@@ -24,7 +24,7 @@
         <div
           class="q-pa-sm"
           :class="prop['class']"
-          v-for="(prop, i) in newPerson"
+          v-for="(prop, i) in newUser"
           :key="i"
         >
           <q-input filled v-model="prop['value']" :label="prop['label']">
@@ -52,17 +52,38 @@
             </template>
           </q-select>
         </div>
-      </div>
-      <!-- <div class="row">
-        <div class="col q-pa-sm">
-          <q-checkbox v-model="isSoldier" label="وظیفه" />
+        <div class="col-4 q-pa-sm">
+          <q-select
+            filled
+            v-model="selectedRole"
+            use-input
+            input-debounce="0"
+            label="نقش"
+            :options="roleOptions"
+          >
+            <template v-slot:prepend>
+              <q-icon name="admin_panel_settings" />
+            </template>
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  نقش یافت نشد
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
         </div>
-      </div> -->
+      </div>
       <div
         style="width: 100%"
         class="row fixed-bottom justify-end q-pa-md q-mt-lg bg-grey-3"
       >
-        <q-btn type="submit" size="15px" color="primary">
+        <q-btn
+          :loading="insertPending"
+          type="submit"
+          size="15px"
+          color="primary"
+        >
           افزودن
           <q-icon class="q-ml-md" name="person_add_alt_1"></q-icon>
         </q-btn>
@@ -79,7 +100,7 @@
 <script>
 import { computed, ref } from "vue";
 import { useStore } from "vuex";
-import { ranks } from "src/store/variables";
+import { ranks, roles } from "src/store/variables";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 
@@ -91,10 +112,12 @@ export default {
     const $q = useQuasar();
 
     const departments = computed(() => store.state.user.departments);
+    const insertPending = computed(() => store.state.users.insertPending);
 
-    const newPerson = ref([
+    const newUser = ref([
       { name: "name", label: "نام", value: ref(null), class: "col-4" },
       { name: "family", label: "نشان", value: ref(null), class: "col-4" },
+      { name: "nationalID", label: "کد ملی", value: ref(null), class: "col-4" },
       {
         name: "perNo",
         label: "شماره پرسنلی",
@@ -102,7 +125,13 @@ export default {
         class: "col-4",
         icon: "person",
       },
-      { name: "nationalID", label: "کد ملی", value: ref(null), class: "col-4" },
+      {
+        name: "password",
+        label: "رمز عبور",
+        value: ref(null),
+        class: "col-4",
+        icon: "lock",
+      },
     ]);
 
     let isSoldier = ref(false);
@@ -115,29 +144,38 @@ export default {
     let selectedRank = ref(null);
     let rankOptions = ref([]);
 
-    const addPerson = () => {
-      const personToBeInserted = {
+    // Role QSelect
+    let selectedRole = ref(null);
+    let roleOptions = ref([]);
+
+    Object.entries(roles).reduce((r, [key, value]) => {
+      r = { label: value.label, value: key };
+      roleOptions.value.push(r);
+    }, []);
+
+    const addUser = () => {
+      const userToBeInserted = {
         isSoldier: isSoldier.value,
-        Name:
-          newPerson.value && newPerson.value ? newPerson.value[0].value : "",
-        Family:
-          newPerson.value && newPerson.value ? newPerson.value[1].value : "",
+        Name: newUser.value && newUser.value ? newUser.value[0].value : null,
+        Family: newUser.value && newUser.value ? newUser.value[1].value : null,
         NewPerNo:
-          newPerson.value && newPerson.value
-            ? newPerson.value[2].value
-            : "00000000",
+          newUser.value && newUser.value ? newUser.value[2].value : "00000000",
         NewNationalID:
-          newPerson.value && newPerson.value ? newPerson.value[3].value : null,
+          newUser.value && newUser.value ? newUser.value[3].value : null,
         Department:
           selectedDepartment && selectedDepartment.value
             ? selectedDepartment.value.value
-            : "0",
+            : null,
         Rank:
           selectedRank && selectedRank.value ? selectedRank.value.value : "000",
+        Password:
+          newUser.value && newUser.value ? newUser.value[4].value : null,
+        Role:
+          selectedRole && selectedRole.value ? selectedRole.value.value : null,
       };
 
       store
-        .dispatch("people/insertPerson", personToBeInserted)
+        .dispatch("users/insertUser", userToBeInserted)
         .then(({ status, message }) => {
           if (status === "error") {
             $q.notify({
@@ -151,13 +189,13 @@ export default {
               icon: "cloud_done",
               message: message,
             });
-            router.push("/people");
+            router.push("/users");
           }
         });
     };
     return {
-      addPerson,
-      newPerson,
+      addUser,
+      newUser,
       departmentOptions,
       selectedDepartment,
       rankOptions,
@@ -165,6 +203,9 @@ export default {
       isSoldier,
       departments,
       ranks,
+      insertPending,
+      selectedRole,
+      roleOptions,
 
       filterDepartments(val, update) {
         if (val === "") {
@@ -173,8 +214,6 @@ export default {
             departmentOptions.value = departments.value.map((a) => {
               return { ...a };
             });
-            // here you have access to "ref" which
-            // is the Vue reference of the QSelect
           });
           return;
         }
@@ -190,15 +229,13 @@ export default {
       filterRanks(val, update) {
         if (val === "") {
           update(() => {
-            // filter options attached to the 5th index in newPerson
+            // filter options attached to the 5th index in newUser
             rankOptions.value = [];
             Object.entries(ranks).reduce((r, [key, value]) => {
               r = { label: value, value: key };
               rankOptions.value.push(r);
             }, []);
             rankOptions.value.reverse();
-            // here you have access to "ref" which
-            // is the Vue reference of the QSelect
           });
           return;
         }

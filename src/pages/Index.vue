@@ -42,7 +42,7 @@
           <q-icon class="q-mr-sm" name="view_comfy" />
           مشاهده لیست
         </q-btn>
-        <q-btn color="teal-9" class="q-pr-sm" flat>
+        <q-btn to="/people/add" color="teal-9" class="q-pr-sm" flat>
           <q-icon class="q-mr-sm" name="group_add" />
           افزودن
         </q-btn>

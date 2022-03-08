@@ -40,14 +40,14 @@
                     class="display-block q-mr-xs"
                     style="margin-top: -5px; font-size: 12px"
                   >
-                    {{ user.PerNo ? "ش پ" : "ش م" }} :
+                    {{ user.IsSoldier === "1" ? "ش پ" : "ش م" }} :
                   </span>
-                  {{ user.PerNo ? user.PerNo : user.NationalID }}
+                  {{ user.IsSoldier === "1" ? user.NationalID : user.PerNo }}
                 </q-chip>
                 <div class="text-subtitle1 q-mb-xs">
-                  <!-- <span class="text-grey text-italic">
-                    {{ user ? user.Rank : "" }}
-                  </span> -->
+                  <span class="text-grey text-italic">
+                    {{ user ? ranks[user.Rank] : "" }}
+                  </span>
                   {{ user ? user.Name + " " + user.Family : "" }}
                 </div>
 
@@ -68,7 +68,7 @@
                 /></q-btn-group>
 
                 <q-input
-                  v-model="user.Department"
+                  v-model="departments[user.Department]"
                   class="q-mt-md"
                   type="textarea"
                   label="قسمت"
@@ -107,7 +107,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" bordered>
+    <q-drawer v-model="leftDrawerOpen" :width="180" bordered>
       <q-list>
         <q-item-label header> دسترسی سامانه </q-item-label>
 
@@ -137,7 +137,7 @@ const linksList = [
   },
   {
     title: "لیست پرسنل",
-    caption: "کارکنان پایور و وظیفه",
+    caption: "پایور و وظیفه",
     icon: "people",
     link: "/people",
   },
@@ -153,6 +153,7 @@ import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
+import { ranks } from "../store/variables.js";
 
 export default defineComponent({
   name: "MainLayout",
@@ -169,12 +170,22 @@ export default defineComponent({
     const leftDrawerOpen = ref(false);
 
     const user = computed(() => store.state.user.data);
+    const departments = computed(() =>
+      Object.assign(
+        {},
+        ...store.state.user.departments.map(({ label, value }) => ({
+          [value]: label,
+        }))
+      )
+    );
 
     return {
       essentialLinks: linksList,
       appVersion,
       leftDrawerOpen,
       user,
+      departments,
+      ranks,
 
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
