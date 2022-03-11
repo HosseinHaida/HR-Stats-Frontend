@@ -58,7 +58,7 @@
       </q-card-section>
 
       <q-card-actions vertical align="left">
-        <q-btn color="primary" class="q-pr-md" flat>
+        <q-btn to="/stats/query" color="primary" class="q-pr-md" flat>
           <q-icon class="q-mr-sm" name="view_module" />
           مشاهده
         </q-btn>

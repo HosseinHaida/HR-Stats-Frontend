@@ -2,9 +2,9 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn flat icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        <!-- <q-btn flat icon="menu" aria-label="Menu" @click="toggleLeftDrawer" /> -->
 
-        <q-toolbar-title class="q-py-xs">
+        <q-toolbar-title>
           <q-btn-dropdown
             v-if="user"
             size="13px"
@@ -91,9 +91,18 @@
             label="ورود به سامانه"
           />
 
-          <q-btn class="q-ml-sm" to="/" flat>
+          <!-- <q-btn class="q-ml-sm" to="/" flat>
             <q-icon name="home" />
-          </q-btn>
+          </q-btn> -->
+          <q-btn class="q-ml-md" icon="home" to="/" />
+          <div style="display: inline-block" class="q-ml-md">
+            <q-tabs align="left">
+              <!-- <q-route-tab to="/"> <q-icon name="home" /> </q-route-tab> -->
+              <q-route-tab to="/users" label="کاربران" />
+              <q-route-tab to="/people" label="پرسنل" />
+              <q-route-tab to="/stats" label="آمار" />
+            </q-tabs>
+          </div>
         </q-toolbar-title>
 
         <LiveTime class="q-mr-md" />
@@ -109,7 +118,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" :width="180" bordered>
+    <!-- <q-drawer v-model="leftDrawerOpen" :width="180" bordered>
       <q-list>
         <q-item-label header> دسترسی سامانه </q-item-label>
 
@@ -119,7 +128,7 @@
           v-bind="link"
         />
       </q-list>
-    </q-drawer>
+    </q-drawer> -->
 
     <q-page-container>
       <router-view />
@@ -132,25 +141,25 @@ import EssentialLink from "components/EssentialLink.vue";
 import LiveTime from "components/LiveTime.vue";
 import { appVersion } from "../store/variables.js";
 
-const linksList = [
-  {
-    title: "لیست کاربران",
-    icon: "manage_accounts",
-    link: "/users",
-  },
-  {
-    title: "لیست پرسنل",
-    caption: "پایور و وظیفه",
-    icon: "people",
-    link: "/people",
-  },
-  {
-    title: "آمار",
-    caption: "مشاهده و ثبت",
-    icon: "receipt_long",
-    link: "/stats",
-  },
-];
+// const linksList = [
+//   {
+//     title: "لیست کاربران",
+//     icon: "manage_accounts",
+//     link: "/users",
+//   },
+//   {
+//     title: "لیست پرسنل",
+//     caption: "پایور و وظیفه",
+//     icon: "people",
+//     link: "/people",
+//   },
+//   {
+//     title: "آمار",
+//     caption: "مشاهده و ثبت",
+//     icon: "receipt_long",
+//     link: "/stats",
+//   },
+// ];
 
 import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
@@ -162,7 +171,7 @@ export default defineComponent({
   name: "MainLayout",
 
   components: {
-    EssentialLink,
+    // EssentialLink,
     LiveTime,
   },
 
@@ -184,16 +193,16 @@ export default defineComponent({
     );
 
     return {
-      essentialLinks: linksList,
+      // essentialLinks: linksList,
       appVersion,
       leftDrawerOpen,
       user,
       departments,
       ranks,
 
-      toggleLeftDrawer() {
-        leftDrawerOpen.value = !leftDrawerOpen.value;
-      },
+      // toggleLeftDrawer() {
+      //   leftDrawerOpen.value = !leftDrawerOpen.value;
+      // },
 
       logout() {
         store.commit("user/logout");

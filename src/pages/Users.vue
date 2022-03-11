@@ -2,7 +2,7 @@
   <div class="q-pa-md row items-start">
     <div class="col-12">
       <div class="row q-pb-sm items-center">
-        <div class="col-6 q-pr-sm">
+        <div class="col-7 q-pr-sm">
           <q-input
             filled
             v-model="usersSearchText"
@@ -45,11 +45,11 @@
       <div class="note-warning q-pa-md rounded-borders">کاربری یافت نشد</div>
     </div>
     <div
-      class="col-xs-12 col-sm-6 col-md-6 col-lg-4 q-pa-sm"
+      class="col-xs-12 col-sm-6 col-lg-4 q-pa-sm"
       v-for="(loopUser, i) in users"
       :key="i"
     >
-      <q-card>
+      <q-card bordered flat>
         <q-badge
           style="border-radius: 4px"
           class="q-px-sm q-py-xs"
@@ -58,10 +58,10 @@
           >{{ roles[loopUser.Role].label }}</q-badge
         >
         <q-card-section horizontal>
-          <q-card-section class="col-3 flex flex-center">
+          <q-card-section class="col-auto flex flex-center">
             <q-img
               class="rounded-borders"
-              style="max-width: 100px"
+              style="min-width: 85px"
               src="~assets/SealOfTheIslamicRepublicOfIranAirForce.png"
             />
           </q-card-section>

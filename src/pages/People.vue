@@ -156,14 +156,7 @@ export default {
     let peopleSearchText = ref(null);
     const store = useStore();
 
-    const departments = computed(() =>
-      Object.assign(
-        {},
-        ...store.state.user.departments.map(({ label, value }) => ({
-          [value]: label,
-        }))
-      )
-    );
+    const departments = computed(() => store.getters["user/getDepartments"]);
 
     const columns = [
       {

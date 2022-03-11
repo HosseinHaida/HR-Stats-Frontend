@@ -2,8 +2,12 @@ export function getUserData(state /*,getters*/) {
   return state.data;
 }
 
-// export function getPermittedDepartments(state) {
-//   state.data && state.data.permissions
-//     ? state.data.user.permissions.permittedDepartments
-//     : [];
-// }
+export function getDepartments(state) {
+  const deps = Object.assign(
+    {},
+    ...state.departments.map(({ label, value }) => ({
+      [value]: label,
+    }))
+  );
+  return deps;
+}

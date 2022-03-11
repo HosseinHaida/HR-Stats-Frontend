@@ -17,9 +17,14 @@ const routes = [
       { path: "/users", component: () => import("pages/Users.vue") },
       { path: "/users/:id", component: () => import("pages/User.vue") },
       { path: "/users/new", component: () => import("pages/UserAdd.vue") },
+      { path: "/stats", component: () => import("pages/Stats.vue") },
       {
         path: "/stats/register",
         component: () => import("pages/StatsRegister.vue"),
+      },
+      {
+        path: "/stats/manage",
+        component: () => import("pages/StatsManage.vue"),
       },
     ],
   },

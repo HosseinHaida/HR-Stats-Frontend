@@ -35,6 +35,26 @@ export const roles = {
   },
 };
 
+export const statuses = {
+  Negahban: "نگهبان",
+  EsterahatNegahbani: "استراحت نگهبانی",
+  EsterahatTirandazi: "استراحت تیراندازی",
+  EsterahatShift: "استراحت شیفت",
+  MamoorDoor: "مامور دور",
+  MamoorNazdik: "مامور نزدیک",
+  TasvieHesab: "تسویه حساب",
+  ModavematKar: "مداومت کار",
+  EsterahatPezeshki: "استراحت پزشکی",
+  Morkhasi: "مرخصی",
+  Ghayeb: "غایب",
+  Farari: "فراری",
+  BazdashtGaah: "بازداشتگاه",
+  TirandaziRoozane: "تیراندازی روزانه",
+  Montaseb: "منتسب",
+  RahDoor: "راه دور",
+  Bimarestan: "بیمارستان",
+};
+
 export const ranks = {
   "000": "نامشخص",
   100: "محصل پيماني",
