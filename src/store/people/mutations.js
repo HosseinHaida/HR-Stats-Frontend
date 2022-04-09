@@ -17,3 +17,7 @@ export function setPeopleListTotals(state, { pages, count }) {
 export function setInsertPending(state, status) {
   state.insertPending = status;
 }
+
+export function setPersonDepartmentChangePending(state, status) {
+  state.personDepartmentChangePending = status;
+}

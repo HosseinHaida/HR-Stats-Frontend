@@ -3,6 +3,7 @@ import { createStore } from "vuex";
 import user from "./user";
 import users from "./users";
 import people from "./people";
+import stats from "./stats";
 
 // import example from './module-example'
 
@@ -21,6 +22,7 @@ export default store(function (/* { ssrContext } */) {
       user,
       people,
       users,
+      stats,
     },
 
     // enable strict mode (adds overhead!)

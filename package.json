@@ -2,7 +2,7 @@
   "name": "hn_stats",
   "version": "0.0.1",
   "description": "Automation For Human Resources Stats Registration",
-  "productName": "HN Stats",
+  "productName": "سامانه آمار پرسنل",
   "author": "Hossein <squanderness@gmail.com>",
   "private": true,
   "scripts": {

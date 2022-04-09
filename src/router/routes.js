@@ -22,10 +22,6 @@ const routes = [
         path: "/stats/register",
         component: () => import("pages/StatsRegister.vue"),
       },
-      {
-        path: "/stats/manage",
-        component: () => import("pages/StatsManage.vue"),
-      },
     ],
   },
   {

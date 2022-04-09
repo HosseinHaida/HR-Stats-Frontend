@@ -8,4 +8,6 @@ export const messages = {
   personAdded: "پرسنل اضافه شد",
   userAdded: "کاربر اضافه شد",
   authDeletedSuccessfully: "حذف نقش موفقیت آمیز",
+  statRegistered: "آمار روزانه با موفقیت ثبت و در انتظار تایید",
+  personDepSetSuccess: "قسمت کارمند/وظیفه تغییر یافت",
 };

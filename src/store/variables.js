@@ -1,6 +1,6 @@
 export const appVersion = "۰.۹";
-// export const apiUrl = "http://10.25.245.51:3000/api/v1";
-export const apiUrl = "http://localhost:3000/api/v1";
+export const apiUrl = "http://10.25.245.51:3000/api/v1";
+// export const apiUrl = "http://localhost:3000/api/v1";
 
 export const roles = {
   can_do_all: {
@@ -36,6 +36,7 @@ export const roles = {
 };
 
 export const statuses = {
+  Hazer: "حاضر",
   Negahban: "نگهبان",
   EsterahatNegahbani: "استراحت نگهبانی",
   EsterahatTirandazi: "استراحت تیراندازی",

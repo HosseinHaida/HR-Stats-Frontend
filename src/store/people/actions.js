@@ -42,6 +42,47 @@ export async function fetchPeople({ rootState, commit, dispatch }, config) {
     );
 }
 
+export async function changeDepartment(
+  { rootState, commit },
+  { department, perNo }
+) {
+  commit("setPersonDepartmentChangePending", true);
+  const url = `${apiUrl}/people/change_department`;
+  return await axios
+    .post(
+      url,
+      { department: department.value, perNo },
+      {
+        headers: {
+          token: rootState.user.t,
+        },
+      }
+    )
+    .then(
+      (res) => {
+        commit("setPersonDepartmentChangePending", false);
+        commit("setPeopleList", res.data.people);
+        return {
+          status: "success",
+          message: messages.personDepSetSuccess,
+        };
+      },
+      (error) => {
+        commit("setPersonDepartmentChangePending", false);
+        if (!error.response) {
+          return {
+            status: "error",
+            message: messages.noConnection,
+          };
+        }
+        return {
+          status: "error",
+          message: error.response.data.error,
+        };
+      }
+    );
+}
+
 export async function uploadExcel({ state, commit, rootState }, excel) {
   commit("setExcelUploadPending", true);
   return await axios

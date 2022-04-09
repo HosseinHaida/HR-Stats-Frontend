@@ -8,10 +8,10 @@
       <q-icon class="q-mr-sm" name="launch" />
       مشاهده آمار قسمت ها
     </q-btn>
-    <q-btn color="primary" to="/stats/manage">
+    <!-- <q-btn color="primary" to="/stats/manage">
       <q-icon class="q-mr-sm" name="launch" />
       مدیریت آمار قسمت ها
-    </q-btn>
+    </q-btn> -->
   </q-page>
 </template>
 

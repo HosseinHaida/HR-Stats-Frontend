@@ -4,12 +4,93 @@
       title="افراد"
       :rows="rows"
       :columns="columns"
-      row-key="ID"
+      row-key="PerNo"
       :visible-columns="visibleColumns"
       table-header-class="bg-grey-2"
-      @row-click="somePeopleIsSelected"
       :pagination="initialPagination"
+      selection="single"
+      v-model:selected="selection"
     >
+      <template v-slot:body="props">
+        <q-tr
+          :props="props"
+          class="cursor-pointer"
+          @click="props.selected = true"
+        >
+          <!-- @click="somePeopleIsSelected(props.row)" -->
+
+          <q-td>
+            <q-checkbox v-model="props.selected" />
+          </q-td>
+          <q-td key="Rank" :props="props">
+            {{ ranks[props.row.Rank] }}
+          </q-td>
+          <q-td key="Name" :props="props">
+            {{ props.row.Name }}
+          </q-td>
+          <q-td key="Family" :props="props">
+            {{ props.row.Family }}
+          </q-td>
+
+          <q-td key="PerNo" :props="props">
+            {{ props.row.PerNo }}
+          </q-td>
+          <q-td key="Department" :props="props">
+            <span
+              v-if="departments"
+              class="q-px-sm q-py-xs rounded-borders text-secondary border-positive"
+            >
+              <q-icon
+                name="edit"
+                color="secondary"
+                size="11px"
+                style="margin-top: -2px"
+              />
+              {{ departments[props.row.Department] }}
+            </span>
+            <q-popup-edit
+              @hide="onDepartmentPopupHide"
+              v-model="props.row.Department"
+            >
+              <q-select
+                filled
+                v-model="editedPersonDepartment"
+                use-input
+                label="تغییر قسمت"
+                dense
+                input-debounce="0"
+                style="width: 320px"
+                :options="departmentOptions"
+                clearable
+                @filter="filterDepartments"
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey">
+                      قسمت یافت نشد
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+              <q-btn
+                icon="save"
+                dense
+                :disable="!editedPersonDepartment"
+                color="secondary"
+                class="q-mt-xs q-px-sm"
+                :loading="personDepartmentChangePending"
+                @click="onPersonDepartmentChange"
+              >
+                <q-tooltip delay="400"> ذخیره </q-tooltip>
+              </q-btn>
+            </q-popup-edit>
+          </q-td>
+          <q-td key="IsSoldier" :props="props">
+            {{ props.row.IsSoldier === "1" ? "وظیفه" : "پایور" }}
+          </q-td>
+        </q-tr>
+      </template>
+
       <template v-slot:top="props">
         <q-btn
           flat
@@ -133,8 +214,8 @@
 
 <script>
 import { exportFile, useQuasar } from "quasar";
-import { mapGetters, useStore } from "vuex";
-import { onMounted, computed, ref, watch } from "vue";
+import { useStore } from "vuex";
+import { onMounted, computed, ref, watch, onUnmounted } from "vue";
 import { ranks } from "../store/variables.js";
 
 const militaryBaseName = "Khazraii";
@@ -157,6 +238,10 @@ export default {
     const store = useStore();
 
     const departments = computed(() => store.getters["user/getDepartments"]);
+    const excelUploadPending = computed(
+      () => store.getters["people/getExcelUploadPending"]
+    );
+    const departmentsRaw = computed(() => store.state.user.departments);
 
     const columns = [
       {
@@ -212,10 +297,7 @@ export default {
       rowsPerPage: 7,
     };
 
-    const fetchPeople = (goToFirstPage) => {
-      if (goToFirstPage === true) {
-        initialPagination.page = 1;
-      }
+    const fetchPeople = () => {
       let selectedDepartmentsIDs = [];
       if (selectedDepartments.value) {
         selectedDepartments.value.forEach((dep) => {
@@ -241,22 +323,34 @@ export default {
     };
 
     watch(peopleSearchText, (value) => {
-      fetchPeople(true);
+      fetchPeople();
     });
 
     let selectedDepartments = ref(null);
 
     watch(selectedDepartments, (value) => {
-      fetchPeople(true);
+      fetchPeople();
     });
 
     onMounted(() => {
-      fetchPeople(true);
+      fetchPeople();
+    });
+
+    onUnmounted(() => {
+      store.commit("people/setPeopleList", []);
     });
 
     // Computed
     const user = computed(() => store.state.user.data);
     const rows = computed(() => store.state.people.list);
+    const personDepartmentChangePending = computed(
+      () => store.state.people.personDepartmentChangePending
+    );
+
+    let departmentOptions = ref([]);
+    let editedPersonDepartment = ref(null);
+
+    let selection = ref([]);
 
     return {
       visibleColumns: ref(["Name", "Family", "PerNo", "Rank", "Department"]),
@@ -265,13 +359,80 @@ export default {
       peopleSearchText,
       initialPagination,
       selectedDepartments,
+      departmentOptions,
+      editedPersonDepartment,
       departments,
-      ranks,
+      selection,
 
+      excelUploadPending,
+      personDepartmentChangePending,
+
+      ranks,
       user,
       rows,
 
       // Methods
+      filterDepartments(val, update) {
+        if (val === "") {
+          update(() => {
+            // filter departmentOptions
+            departmentOptions.value = departmentsRaw.value.map((a) => {
+              return { ...a };
+            });
+          });
+          return;
+        }
+
+        update(() => {
+          const needle = val;
+          departmentOptions.value = departmentsRaw.value.filter((v) => {
+            return v.label.indexOf(needle) > -1;
+          });
+        });
+      },
+
+      onDepartmentPopupHide() {
+        if (editedPersonDepartment.value || selection.value) {
+          editedPersonDepartment.value = null;
+          selection.value = [];
+        }
+      },
+
+      async onPersonDepartmentChange() {
+        if (
+          !selection.value ||
+          !selection.value ||
+          !selection.value[0] ||
+          !selection.value[0]["PerNo"]
+        )
+          return $q.notify({
+            color: "red-5",
+            icon: "warning",
+            message: "لطفا ابتدا یک نفر را انتخاب کنید",
+          });
+        await store
+          .dispatch("people/changeDepartment", {
+            department: editedPersonDepartment.value,
+            perNo: selection.value[0]["PerNo"],
+          })
+          .then(({ status, message }) => {
+            if (status === "error") {
+              $q.notify({
+                color: "red-5",
+                icon: "warning",
+                message: message,
+              });
+            } else if (status === "success") {
+              $q.notify({
+                color: "green-4",
+                icon: "cloud_done",
+                message: message,
+              });
+              fetchPeople();
+            }
+          });
+      },
+
       fetchPeople,
       exportPeople() {
         const content = [columns.map((col) => wrapCsvValue(col.label))]
@@ -324,22 +485,17 @@ export default {
                   message: message,
                 });
 
-                fetchPeople(true);
+                fetchPeople();
                 excelFile.value = null;
               }
             });
         }
       },
 
-      somePeopleIsSelected(evt, row) {
-        // console.log(row);
-      },
+      // somePeopleIsSelected(row) {
+      //   editedPersonDepartmentPerNo.value = row.PerNo;
+      // },
     };
-  },
-  computed: {
-    ...mapGetters({
-      excelUploadPending: "people/getExcelUploadPending",
-    }),
   },
 };
 </script>

@@ -1,4 +1,4 @@
-# HN Stats (hn_stats)
+# HR Stats (hn_stats)
 
 Automation For Human Resources Stats Registration
 

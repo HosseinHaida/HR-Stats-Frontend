@@ -74,43 +74,14 @@
 
                 <q-td key="PerNo" :props="props">
                   {{ props.row.PerNo }}
-                  <!-- <q-popup-edit
-                    v-model="props.row.PerNo"
-                    title="Update calories"
-                    buttons
-                    v-slot="scope"
-                  >
-                    <q-input
-                      type="number"
-                      v-model="scope.value"
-                      dense
-                      autofocus
-                    />
-                  </q-popup-edit> -->
                 </q-td>
-                <!-- <q-td key="Department" :props="props">
-                  <div class="text-pre-wrap">{{ props.row.Department }}</div>
-                  <q-popup-edit v-model="props.row.Department" v-slot="scope">
-                    <q-input
-                      type="textarea"
-                      v-model="scope.value"
-                      dense
-                      autofocus
-                    />
-                  </q-popup-edit>
-                </q-td> -->
                 <q-td key="IsSoldier" :props="props">
                   {{ props.row.IsSoldier === "1" ? "وظیفه" : "پایور" }}
                 </q-td>
                 <q-td key="State" :props="props">
-                  <!-- {{ props.row.State }} -->
-                  <span v-if="!personnelStatus[props.row.PerNo]">
-                    ...............
-                    <q-tooltip delay="1500"> ثبت یا ویرایش وضعیت </q-tooltip>
-                  </span>
                   <span
+                    v-if="personnelStatus[props.row.PerNo]"
                     class="q-px-sm q-py-xs rounded-borders text-positive border-positive"
-                    v-else
                   >
                     <q-icon
                       name="done"
@@ -120,9 +91,7 @@
                     />
                     {{ personnelStatus[props.row.PerNo]["label"] }}
                   </span>
-                  <!-- v-slot="scope" -->
                   <q-popup-edit v-model="props.row.State">
-                    <!-- <q-input v-model="scope.value" dense autofocus counter /> -->
                     <q-select
                       filled
                       v-model="personnelStatus[props.row.PerNo]"
@@ -152,7 +121,11 @@
         </div>
       </div>
       <q-card-actions>
-        <q-btn color="primary">
+        <q-btn
+          :loading="registerPending"
+          @click="onStatsRegister()"
+          color="primary"
+        >
           <q-icon class="q-mr-xs" name="done_all" />
           تایید و ذخیره
         </q-btn>
@@ -301,6 +274,7 @@ export default {
     const selectedAuthedDepartment = ref(null);
 
     const departments = computed(() => store.getters["user/getDepartments"]);
+    const registerPending = computed(() => store.state.stats.registerPending);
 
     const selectAuthedDepartment = (selection) => {
       selectedAuthedDepartment.value = selection;
@@ -310,11 +284,14 @@ export default {
 
     let peopleSearchText = ref(null);
 
-    const checkUserDepartmentsAndSet = () => {
-      user.value.permissions.authedDepartments.length > 1
-        ? (authedDepartmentsSelectToggle.value = true)
-        : (selectedAuthedDepartment.value =
-            user.value.permissions.authedDepartments[0]);
+    const checkUserDepartmentsAndSet = async () => {
+      if (user.value.permissions.authedDepartments.length > 1) {
+        authedDepartmentsSelectToggle.value = true;
+      } else {
+        selectedAuthedDepartment.value =
+          user.value.permissions.authedDepartments[0];
+        fetchPeople();
+      }
     };
 
     onBeforeMount(async () => {
@@ -357,6 +334,17 @@ export default {
 
     const rows = computed(() => store.state.people.list);
 
+    watch(rows, (value) => {
+      value.forEach((person) => {
+        if (!personnelStatus.value[person.PerNo]) {
+          personnelStatus.value[person.PerNo] = {
+            label: "حاضر",
+            value: "Hazer",
+          };
+        }
+      });
+    });
+
     return {
       user,
       today,
@@ -369,6 +357,7 @@ export default {
       ranks,
       personnelStatus,
       statusOptions,
+      registerPending,
       visibleColumns: ref([
         "Name",
         "Family",
@@ -383,8 +372,29 @@ export default {
       selectAuthedDepartment,
       fetchPeople,
 
-      showPeople() {
-        console.log(personnelStatus.value);
+      onStatsRegister() {
+        // console.log(personnelStatus.value);
+        store
+          .dispatch("stats/register", {
+            stats: personnelStatus.value,
+            department: selectedAuthedDepartment.value["value"],
+          })
+          .then(({ status, message }) => {
+            // if (status === "error") {
+            //   $q.notify({
+            //     color: "red-5",
+            //     icon: "warning",
+            //     message: message,
+            //   });
+            // } else
+            if (status === "success") {
+              $q.notify({
+                color: "green-4",
+                icon: "cloud_done",
+                message: message,
+              });
+            }
+          });
       },
 
       filterStatuses(val, update) {
