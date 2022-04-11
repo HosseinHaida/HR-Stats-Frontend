@@ -4,6 +4,7 @@ import user from "./user";
 import users from "./users";
 import people from "./people";
 import stats from "./stats";
+import excessive from "./excessive";
 
 // import example from './module-example'
 
@@ -23,6 +24,7 @@ export default store(function (/* { ssrContext } */) {
       people,
       users,
       stats,
+      excessive,
     },
 
     // enable strict mode (adds overhead!)

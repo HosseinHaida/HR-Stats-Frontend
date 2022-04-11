@@ -1,17 +1,25 @@
 <template>
   <q-page class="q-pa-md q-gutter-sm">
-    <q-btn color="primary" to="/stats/register">
-      <q-icon class="q-mr-sm" name="launch" />
-      ثبت وضعیت روزانه
-    </q-btn>
-    <q-btn color="primary" to="/stats/query">
-      <q-icon class="q-mr-sm" name="launch" />
-      مشاهده آمار قسمت ها
-    </q-btn>
-    <!-- <q-btn color="primary" to="/stats/manage">
-      <q-icon class="q-mr-sm" name="launch" />
-      مدیریت آمار قسمت ها
-    </q-btn> -->
+    <div class="row">
+      <q-btn color="primary" to="/stats/register">
+        <q-icon class="q-mr-sm" name="launch" />
+        ثبت وضعیت روزانه
+      </q-btn>
+    </div>
+
+    <div class="row">
+      <q-btn color="primary" to="/stats/query">
+        <q-icon class="q-mr-sm" name="launch" />
+        مشاهده آمار قسمت ها
+      </q-btn>
+    </div>
+
+    <div class="row">
+      <q-btn color="primary" to="/stats/daysoff">
+        <q-icon class="q-mr-sm" name="launch" />
+        ثبت مرخصی
+      </q-btn>
+    </div>
   </q-page>
 </template>
 

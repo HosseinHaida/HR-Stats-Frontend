@@ -21,3 +21,7 @@ export function setInsertPending(state, status) {
 export function setPersonDepartmentChangePending(state, status) {
   state.personDepartmentChangePending = status;
 }
+
+export function setFindingPersonPending(state, status) {
+  state.findingPersonPending = status;
+}

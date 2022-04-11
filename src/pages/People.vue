@@ -216,9 +216,8 @@
 import { exportFile, useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { onMounted, computed, ref, watch, onUnmounted } from "vue";
-import { ranks } from "../store/variables.js";
+import { ranks, militaryBaseName } from "../store/variables.js";
 
-const militaryBaseName = "Khazraii";
 const currentDepartment = "HR";
 
 function wrapCsvValue(val, formatFn) {
@@ -452,7 +451,7 @@ export default {
           )
           .join("\r\n");
         const status = exportFile(
-          `${militaryBaseName}-${currentDepartment}-people.csv`,
+          `${militaryBaseName}-${user.value.Department}-people.csv`,
           "\ufeff" + content,
           "text/csv"
         );

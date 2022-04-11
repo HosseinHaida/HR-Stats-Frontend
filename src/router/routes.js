@@ -4,12 +4,6 @@ const routes = [
   {
     path: "/",
     component: () => import("layouts/MainLayout.vue"),
-    // beforeEnter: (to, from) => {
-    //   // reject the navigation
-    //   console.log(store);
-    //   if (!user.data) return false;
-    //   else return true;
-    // },
     children: [
       { path: "", component: () => import("pages/Index.vue") },
       { path: "/people", component: () => import("pages/People.vue") },
@@ -22,6 +16,10 @@ const routes = [
         path: "/stats/register",
         component: () => import("pages/StatsRegister.vue"),
       },
+      {
+        path: "stats/daysoff",
+        component: () => import("pages/StatsDaysOff.vue"),
+      },
     ],
   },
   {
@@ -29,8 +27,7 @@ const routes = [
     component: () => import("pages/Login.vue"),
   },
 
-  // Always leave this as last one,
-  // but you can also remove it
+  // at last
   {
     path: "/:catchAll(.*)*",
     component: () => import("pages/Error404.vue"),
