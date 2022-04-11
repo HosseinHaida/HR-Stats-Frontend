@@ -151,3 +151,39 @@ export async function insertPerson({ rootState, commit }, newPerson) {
       }
     );
 }
+
+export async function findPerson({ rootState, commit, dispatch }, config) {
+  commit("setFindingPersonPending", true);
+  if (!rootState.user.t)
+    await dispatch("user/fetchUserData", null, { root: true });
+  const url = `${apiUrl}/people/find/?id=${config.id}`;
+  return await axios
+    .get(url, {
+      headers: {
+        token: rootState.user.t,
+      },
+    })
+    .then(
+      (res) => {
+        commit("setFindingPersonPending", false);
+        return {
+          status: "success",
+          message: "success",
+          fetchedPerson: res.data.fetchedPerson,
+        };
+      },
+      (error) => {
+        commit("setFindingPersonPending", false);
+        if (!error.response) {
+          return {
+            status: "error",
+            message: messages.noConnection,
+          };
+        }
+        return {
+          status: "error",
+          message: error.response.data.error,
+        };
+      }
+    );
+}
