@@ -6,5 +6,6 @@
   "editor.codeActionsOnSave": ["source.fixAll.eslint"],
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
   "editor.fontSize": 16,
-  "editor.fontWeight": "bold"
+  "editor.fontWeight": "bold",
+  "prettier.singleQuote": true
 }

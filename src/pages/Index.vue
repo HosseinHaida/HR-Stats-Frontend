@@ -69,112 +69,106 @@
         </q-card-actions>
       </q-card>
     </div>
-
     <div
-      v-if="user && user.Department === '23'"
-      class="q-mt-xs row items-start q-gutter-md"
+      v-if="user && user.Department === '23' && canUploadDastoorExcel"
+      class="row q-mt-xs q-gutter-md"
     >
-      <q-card flat class="main-page-tiles col-3">
-        <q-card-section>
-          <div class="text-h6">سایر امکانات</div>
-        </q-card-section>
+      <div class="col-3">
+        <q-list bordered>
+          <q-expansion-item
+            color
+            expand-separator
+            icon="more_horiz"
+            label="سایر امکانات"
+          >
+            <div class="q-mt-xs row items-start q-gutter-md">
+              <q-card flat class="main-page-tiles col">
+                <q-card-actions vertical align="left">
+                  <div class="features-right-border q-pl-sm">
+                    سامانه دستور
 
-        <q-card-actions vertical align="left">
-          <div class="features-right-border q-pl-sm">
-            سامانه دستور
+                    <div class="q-pa-md">
+                      <q-btn-dropdown color="blue-grey" label="افزودن اکسل">
+                        <q-list>
+                          <q-item
+                            clickable
+                            v-for="(madde, i) in maddeHa"
+                            @click="selectMaddeForUpload(i)"
+                            :key="i"
+                            v-close-popup
+                          >
+                            <q-item-section>
+                              <q-item-label>
+                                ماده {{ i }} - {{ madde.name }}
+                              </q-item-label>
+                            </q-item-section>
+                          </q-item>
+                        </q-list>
+                      </q-btn-dropdown>
 
-            <div class="q-pa-md">
-              <q-btn-dropdown color="blue-grey" label="افزودن اکسل">
-                <q-list>
-                  <q-item
-                    clickable
-                    v-for="(madde, i) in maddeHa"
-                    @click="selectMaddeForUpload(i)"
-                    :key="i"
-                    v-close-popup
-                  >
-                    <!-- <q-item-section avatar>
-                      <q-avatar
-                        icon="folder"
-                        color="primary"
-                        text-color="white"
-                      />
-                    </q-item-section> -->
-                    <q-item-section>
-                      <q-item-label>
-                        ماده {{ i }} - {{ madde.name }}
-                      </q-item-label>
-                      <!-- <q-item-label caption>February 22, 2016</q-item-label> -->
-                    </q-item-section>
-                    <!-- <q-item-section side class="cursor-auto">
-                      <q-btn dense flat @click.stop="downloadHelp(i)">
-                        <q-icon name="description" color="blue-grey"> </q-icon>
-                        <q-tooltip> دانلود فایل اکسل خالی</q-tooltip>
-                      </q-btn>
-                    </q-item-section> -->
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
+                      <!-- Dialog when a Madde is chosen -->
+                      <q-dialog persistent v-model="showMaddeDialog">
+                        <q-card>
+                          <q-card-section>
+                            <div class="text-h6" style="min-width: 350px">
+                              آپلود گروهی ماده {{ selectedMadde.number }} -
+                              {{ selectedMadde.name }}
+                            </div>
+                          </q-card-section>
 
-              <!-- Dialog when a Madde is chosen -->
-              <q-dialog persistent v-model="showMaddeDialog">
-                <q-card>
-                  <q-card-section>
-                    <div class="text-h6" style="min-width: 350px">
-                      آپلود گروهی ماده {{ selectedMadde.number }} -
-                      {{ selectedMadde.name }}
+                          <q-card-section class="q-pt-none">
+                            <q-form>
+                              <q-file
+                                class="ellipsis"
+                                dense
+                                accept=".xlsx"
+                                v-model="excelFile"
+                                label="انتخاب فایل اکسل"
+                                filled
+                              >
+                                <template v-slot:append>
+                                  <q-icon
+                                    v-if="!excelFile"
+                                    name="post_add"
+                                    class="cursor-pointer"
+                                  />
+                                </template>
+                              </q-file>
+                            </q-form>
+                          </q-card-section>
+
+                          <q-card-actions align="right">
+                            <q-btn
+                              v-if="excelFile"
+                              color="positive"
+                              label="بارگذاری"
+                              icon="upload"
+                              @click="uploadDastoorExcelFile()"
+                              :loading="excelUploadPending"
+                            >
+                            </q-btn>
+                            <q-btn
+                              @click="exportColumnNames"
+                              label="دانلود نام ستون‌ها"
+                              color="primary"
+                            />
+                            <q-btn
+                              flat
+                              label="لغو"
+                              color="primary"
+                              @click="dismissUpload"
+                            />
+                          </q-card-actions>
+                        </q-card>
+                      </q-dialog>
                     </div>
-                  </q-card-section>
-
-                  <q-card-section class="q-pt-none">
-                    <q-form>
-                      <q-file
-                        class="ellipsis"
-                        dense
-                        accept=".xlsx"
-                        v-model="excelFile"
-                        label="انتخاب فایل اکسل"
-                        filled
-                      >
-                        <template v-slot:append>
-                          <q-icon
-                            v-if="!excelFile"
-                            name="post_add"
-                            class="cursor-pointer"
-                          />
-                        </template>
-                      </q-file>
-                    </q-form>
-                  </q-card-section>
-
-                  <q-card-actions align="right">
-                    <q-btn
-                      v-if="excelFile"
-                      color="positive"
-                      label="بارگذاری"
-                      icon="upload"
-                      @click="uploadDastoorExcelFile()"
-                      :loading="excelUploadPending"
-                    >
-                    </q-btn>
-                    <q-btn
-                      @click="exportColumnNames"
-                      label="دانلود نام ستون‌ها"
-                      color="primary"
-                    />
-                    <q-btn
-                      flat
-                      label="لغو"
-                      color="primary"
-                      @click="dismissUpload"
-                    />
-                  </q-card-actions>
-                </q-card>
-              </q-dialog>
+                  </div>
+                </q-card-actions>
+              </q-card>
             </div>
-          </div>
-        </q-card-actions>
-      </q-card>
+          </q-expansion-item>
+        </q-list>
+      </div>
     </div>
 
     <!-- <q-date v-model="date" calendar="persian" today-btn></q-date> -->
@@ -214,15 +208,28 @@ export default defineComponent({
     const excelUploadPending = computed(
       () => store.state.excessive.excelUploadPending
     );
+    // Check if user can upload Dastoor Excel Files
+    const canUploadDastoorExcel = computed(() => {
+      const ifYes = user.value.permissions.authedDepartments.filter(
+        (loopAuth) => loopAuth.role === "can_upload_dastoor"
+      );
+      return ifYes.length > 0;
+    });
+    const dismissUpload = () => {
+      showMaddeDialog.value = false;
+      excelFile.value = null;
+      selectedMadde.value = null;
+    };
 
     return {
-      // date: "1375/08/09",
       showMaddeDialog,
       selectedMadde,
       excelFile,
       maddeHa,
       user,
       excelUploadPending,
+      canUploadDastoorExcel,
+      dismissUpload,
       uploadDastoorExcelFile() {
         if (excelFile.value) {
           const formData = new FormData();
@@ -252,11 +259,11 @@ export default defineComponent({
         }
       },
       exportColumnNames() {
-        const content = [
-          maddeHaCols[selectedMadde.value.number].map((col) =>
-            wrapCsvValue(col)
-          ),
-        ];
+        let cols = [];
+        Object.entries(maddeHaCols[selectedMadde.value.number]).forEach(
+          ([key, val]) => cols.push(val)
+        );
+        const content = [cols.map((key) => wrapCsvValue(key))];
         const status = exportFile(
           `${militaryBaseName}-HR-Madde${selectedMadde.value.number}-Columns.csv`,
           "\ufeff" + content,
@@ -269,11 +276,6 @@ export default defineComponent({
             icon: "warning",
           });
         }
-      },
-      dismissUpload() {
-        showMaddeDialog.value = false;
-        excelFile.value = null;
-        selectedMadde.value = null;
       },
       selectMaddeForUpload(number) {
         selectedMadde.value = maddeHa[number];
