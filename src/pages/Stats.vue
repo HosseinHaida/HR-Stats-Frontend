@@ -20,6 +20,13 @@
         ثبت مرخصی
       </q-btn>
     </div>
+
+    <div class="row">
+      <q-btn color="primary" to="/stats/daysoff/list">
+        <q-icon class="q-mr-sm" name="launch" />
+        مشاهده مرخصی‌ها
+      </q-btn>
+    </div>
   </q-page>
 </template>
 

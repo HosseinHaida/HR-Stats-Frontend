@@ -20,6 +20,10 @@ const routes = [
         path: "stats/daysoff",
         component: () => import("pages/StatsDaysOff.vue"),
       },
+      {
+        path: "stats/daysoff/list",
+        component: () => import("pages/StatsDaysOffList.vue"),
+      },
     ],
   },
   {

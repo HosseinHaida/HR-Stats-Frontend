@@ -248,6 +248,11 @@ export const ranks = {
   824: "ستوان ",
 };
 
+export const offDaysTypes = [
+  { label: "سالیانه", value: "s" },
+  { label: "تشویقی", value: "t" },
+];
+
 export const maddeHa = {
   1: { name: "تشویقات", number: 1, table: "Tashvighat" },
   2: { name: "ترفیعات", number: 2, table: "Tarfiat" },
@@ -321,7 +326,7 @@ export const maddeHaCols = {
     // OdatDahande: "",
     // DastoorTashvigh: "دستور تشویق",
     Zamaem: "ضمایم",
-    Shobe: "شعبه",
+    // Shobe: "شعبه",
     RafeTanbihat1: "رفع تنبیهات۱",
     RafeTanbihat2: "رفع تنبیهات۲",
     RafeTanbihat3: "رفع تنبیهات۳",

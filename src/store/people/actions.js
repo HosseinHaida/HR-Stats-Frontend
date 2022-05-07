@@ -169,7 +169,7 @@ export async function findPerson({ rootState, commit, dispatch }, config) {
         return {
           status: "success",
           message: "success",
-          fetchedPerson: res.data.fetchedPerson,
+          person: res.data.person,
         };
       },
       (error) => {
@@ -178,6 +178,7 @@ export async function findPerson({ rootState, commit, dispatch }, config) {
           return {
             status: "error",
             message: messages.noConnection,
+            person: null,
           };
         }
         return {

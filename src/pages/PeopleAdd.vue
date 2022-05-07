@@ -60,7 +60,7 @@
       </div> -->
       <div
         style="width: 100%"
-        class="row fixed-bottom justify-end q-pa-md q-mt-lg bg-grey-3"
+        class="row fixed-bottom justify-end q-pa-md q-mt-lg bg-grey-1"
       >
         <q-btn type="submit" size="15px" color="primary">
           افزودن

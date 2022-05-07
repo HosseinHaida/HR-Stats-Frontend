@@ -45,7 +45,7 @@
       <div class="note-warning q-pa-md rounded-borders">کاربری یافت نشد</div>
     </div>
     <div
-      class="col-xs-12 col-sm-6 col-lg-4 q-pa-sm"
+      class="col-xs-12 col-sm-4 col-lg-4 q-pa-sm"
       v-for="(loopUser, i) in users"
       :key="i"
     >
@@ -58,13 +58,13 @@
           >{{ roles[loopUser.Role].label }}</q-badge
         >
         <q-card-section horizontal>
-          <q-card-section class="col-auto flex flex-center">
+          <!-- <q-card-section class="col-auto flex flex-center">
             <q-img
               class="rounded-borders"
               style="min-width: 85px"
               src="~assets/SealOfTheIslamicRepublicOfIranAirForce.png"
             />
-          </q-card-section>
+          </q-card-section> -->
 
           <q-card-section class="col" q-pt-xs>
             <div>
