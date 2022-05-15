@@ -352,7 +352,14 @@ export default {
     let selection = ref([]);
 
     return {
-      visibleColumns: ref(["Name", "Family", "PerNo", "Rank", "Department"]),
+      visibleColumns: ref([
+        "Name",
+        "Family",
+        "PerNo",
+        "Rank",
+        "Department",
+        "IsSoldier",
+      ]),
       columns,
       excelFile,
       peopleSearchText,
