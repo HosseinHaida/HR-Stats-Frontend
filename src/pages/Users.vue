@@ -49,7 +49,7 @@
       v-for="(loopUser, i) in users"
       :key="i"
     >
-      <q-card bordered flat>
+      <q-card>
         <q-badge
           style="border-radius: 4px"
           class="q-px-sm q-py-xs"
@@ -58,30 +58,28 @@
           >{{ roles[loopUser.Role].label }}</q-badge
         >
         <q-card-section horizontal>
-          <!-- <q-card-section class="col-auto flex flex-center">
-            <q-img
-              class="rounded-borders"
-              style="min-width: 85px"
-              src="~assets/SealOfTheIslamicRepublicOfIranAirForce.png"
-            />
-          </q-card-section> -->
+          <q-card-section class="col-auto flex flex-center">
+            <q-avatar v-if="loopUser.Photo" size="80px">
+              <q-img :ratio="1" :src="loopUser.Photo" />
+            </q-avatar>
+          </q-card-section>
 
           <q-card-section class="col" q-pt-xs>
-            <div>
+            <div style="font-size: 12px">
               {{ ranks[loopUser.Rank] }}
               {{ loopUser.IsSoldier === "1" ? " وظیفه" : "" }}
             </div>
-            <div style="font-size: 17px" class="q-mt-sm q-mb-xs">
+            <div style="font-size: 14px" class="q-mt-sm q-mb-xs">
               {{ loopUser.Name + " " + loopUser.Family }}
             </div>
-            <div class="text-caption">
+            <div class="text-caption" style="font-size: 11px">
               {{ departmentsIndexed[loopUser.AuthDepartmentID] }}
             </div>
           </q-card-section>
 
           <q-card-section
             v-if="user && user.Department === '23'"
-            class="items-end q-py-sm row col justify-end"
+            class="items-end q-py-sm row col-auto justify-end"
           >
             <div class="row">
               <q-btn
