@@ -15,7 +15,7 @@
         <div class="col-9">
           <div class="row">
             <div class="col-6 q-pr-sm">
-              <q-select
+              <!-- <q-select
                 v-model="requester"
                 label="درخواست کننده"
                 filled
@@ -31,7 +31,22 @@
                     </q-item-section>
                   </q-item>
                 </template>
-              </q-select>
+              </q-select> -->
+              <q-input
+                filled
+                :model-value="
+                  ranks[user.Rank] +
+                  ' ' +
+                  user.Name +
+                  ' ' +
+                  user.Family +
+                  ' - ' +
+                  user.PerNo
+                "
+                label="درخواست کننده"
+                disable
+              >
+              </q-input>
             </div>
             <div class="col-6 q-px-sm">
               <q-select
@@ -54,17 +69,11 @@
             </div>
 
             <div class="q-mt-md col-6 q-pr-sm">
-              <q-input
-                :disable="!personFetched"
-                filled
-                v-model="daysOffLoc"
-                label="مقصد"
-              />
+              <q-input filled v-model="daysOffLoc" label="مقصد" />
             </div>
 
             <div class="q-mt-md col-6 q-px-sm">
               <q-input
-                :disable="!personFetched"
                 filled
                 v-model="daysOffSpecLoc"
                 label="نشانی محل استفاده"
@@ -73,7 +82,6 @@
 
             <div class="q-mt-md col-6 q-pr-sm">
               <q-input
-                :disable="!personFetched"
                 filled
                 v-model="daysOffTransit"
                 label="رفت و برگشت"
@@ -84,7 +92,6 @@
 
             <div class="q-mt-md col-6 q-px-sm">
               <q-select
-                :disable="!personFetched"
                 filled
                 :options="offDaysTypes"
                 v-model="daysOffType"
@@ -92,11 +99,11 @@
               />
             </div>
 
-            <div class="col-6 q-pr-sm q-mt-md" v-if="personFetched">
+            <div class="col-6 q-pr-sm q-mt-md">
               <q-input
                 disable
                 filled
-                :model-value="departments[personFetched.Department]"
+                :model-value="departments[user.Department]"
                 label="قسمت"
               />
             </div>
@@ -105,7 +112,6 @@
 
         <div class="col q-pl-sm">
           <q-date
-            :disable="!personFetched"
             v-model="daysOffDuration"
             calendar="persian"
             today-btn
@@ -146,8 +152,6 @@ export default {
     const $q = useQuasar();
     const router = useRouter();
 
-    let personFetched = ref(null);
-    let requester = ref(null);
     let successor = ref(null);
 
     let daysOffDuration = ref(null);
@@ -160,26 +164,23 @@ export default {
 
     const departments = computed(() => store.getters["user/getDepartments"]);
 
-    const findPerson = (flag) => {
-      let personPerNo =
-        flag === 0 ? requester.value.value : successor.value.value;
-
-      store
-        .dispatch("people/findPerson", {
-          id: personPerNo,
-        })
-        .then(({ status, message, person }) => {
-          if (status === "success") {
-            if (flag === 0) personFetched.value = person;
-          } else if (status === "error") {
-            $q.notify({
-              color: "red-5",
-              icon: "warning",
-              message: message,
-            });
-          }
-        });
-    };
+    // const findPerson = () => {
+    //   store
+    //     .dispatch("people/findPerson", {
+    //       id: successor.value.value,
+    //     })
+    //     .then(({ status, message, person }) => {
+    //       if (status === "success") {
+    //         if (flag === 0) personFetched.value = person;
+    //       } else if (status === "error") {
+    //         $q.notify({
+    //           color: "red-5",
+    //           icon: "warning",
+    //           message: message,
+    //         });
+    //       }
+    //     });
+    // };
 
     const people = computed(() => store.state.people.list);
     const user = computed(() => store.state.user.data);
@@ -187,6 +188,8 @@ export default {
 
     const fetchPeople = () => {
       store
+        // HR Users are also only able to insert
+        // days-off for their own department staff
         .dispatch("people/fetchPeople", {
           searchText: "",
           departments: "based_on_auth",
@@ -236,17 +239,11 @@ export default {
       });
     };
 
-    watch(requester, (value) => {
-      if (value && value.value) {
-        findPerson(0);
-      }
-    });
-
-    watch(successor, (value) => {
-      if (value && value.value) {
-        findPerson(1);
-      }
-    });
+    // watch(successor, (value) => {
+    //   if (value && value.value) {
+    //     findSuccessor();
+    //   }
+    // });
 
     onUnmounted(() => {
       store.commit("people/setPeopleList", []);
@@ -258,7 +255,6 @@ export default {
 
     const saveOffDays = () => {
       if (
-        !requester.value ||
         !successor.value ||
         !daysOffDuration.value ||
         !daysOffDuration.value ||
@@ -278,7 +274,6 @@ export default {
       store
         .dispatch("stats/setDaysOff", {
           data: {
-            requester: requester.value.value,
             successor: successor.value.value,
             daysOffDate: !daysOffDuration.value.from
               ? daysOffDuration.value
@@ -314,14 +309,13 @@ export default {
     );
 
     return {
-      personFetched,
-      findPerson,
+      // personFetched,
+      // findPerson,
       findingPersonPending,
       user,
       people,
       peopleOptions,
       fetchPeople,
-      requester,
       successor,
       filterPeople,
       ranks,
