@@ -6,5 +6,6 @@ export default function () {
     data: null,
     t: null,
     departments: null,
+    profilePhotoUploadPending: false,
   };
 }

@@ -87,3 +87,36 @@ export async function fetchUserData({ state, commit }) {
     };
   }
 }
+
+export async function uploadProfilePhoto({ state, commit, rootState }, photo) {
+  commit("setProfilePhotoUploadPending", true);
+  return await axios
+    .post(`${apiUrl}/auth/upload/profile_photo`, photo, {
+      headers: {
+        token: rootState.user.t,
+      },
+    })
+    .then(
+      (res) => {
+        // commit("updateUserPhoto", res.data.photo_path);
+        commit("setProfilePhotoUploadPending", false);
+        return {
+          status: "success",
+          message: messages.profilePhotoUploadSuccess,
+        };
+      },
+      (error) => {
+        commit("setProfilePhotoUploadPending", false);
+        if (!error.response) {
+          return {
+            status: "error",
+            message: messages.noConnection,
+          };
+        }
+        return {
+          status: "error",
+          message: error.response.data.error,
+        };
+      }
+    );
+}

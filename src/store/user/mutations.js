@@ -40,3 +40,7 @@ export function logout(state) {
 export function setDepartmentsList(state, departments) {
   state.departments = departments;
 }
+
+export function setProfilePhotoUploadPending(state, status) {
+  state.profilePhotoUploadPending = status;
+}
