@@ -11,4 +11,5 @@ export const messages = {
   statRegistered: "آمار روزانه با موفقیت ثبت و در انتظار تایید",
   personDepSetSuccess: "قسمت کارمند/وظیفه تغییر یافت",
   daysOffFetchSuccessful: "لیست مرخصی‌ها واکشی شد",
+  profilePhotoUploadSuccess: "تصویر پروفایل با موفقیت بارگذاری شد",
 };

@@ -2,6 +2,10 @@ export const appVersion = "۰.۹";
 // export const apiUrl = "http://10.25.245.51:3000/api/v1";
 export const apiUrl = "http://localhost:3000/api/v1";
 export const militaryBaseName = "Shahid_Khazraii";
+// bg-deep-purple-9
+// bg-teal-9
+// bg-primary
+export const militaryBaseNameFa = "مرکز آموزش شهید خضرایی";
 
 export const roles = {
   can_do_all: {
@@ -27,6 +31,10 @@ export const roles = {
   succ: {
     label: "جانشین",
     badgeColor: "pink-4",
+  },
+  dude: {
+    label: "کاربر معمولی",
+    badgeColor: "grey",
   },
   can_upload_dastoor: {
     label: "متصدی سامانه دستور",
