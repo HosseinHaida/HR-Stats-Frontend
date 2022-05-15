@@ -2,10 +2,18 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <!-- <q-btn flat icon="menu" aria-label="Menu" @click="toggleLeftDrawer" /> -->
+        <q-btn
+          flat
+          dense
+          icon="menu"
+          aria-label="Menu"
+          @click="leftDrawerOpen = !leftDrawerOpen"
+        />
 
-        <q-toolbar-title>
+        <q-toolbar-title class="row items-center">
+          <!-- <div class="row"> -->
           <q-btn-dropdown
+            class="col-auto"
             v-if="user"
             size="13px"
             color="grey-1"
@@ -22,20 +30,20 @@
               </div>
             </template>
 
-            <div class="row no-wrap q-pa-md">
-              <div class="column items-center" style="min-width: 110px">
-                <q-avatar class="user-photo-avatar" size="72px">
+            <div class="row no-wrap q-pt-md justify-center">
+              <div
+                class="col text-center q-px-none"
+                style="min-width: 110px; width: 100%"
+              >
+                <q-avatar class="user-photo-avatar" size="80px">
                   <q-img :ratio="1" :src="user.Photo" />
-                  <span
-                    class="user-photo-placeholder border: 1px solid black"
-                    >{{
-                      user.Name.charAt(0).toUpperCase() +
-                      " " +
-                      user.Family.charAt(0).toUpperCase()
-                    }}</span
-                  >
+                  <span class="user-photo-placeholder">{{
+                    user.Name.charAt(0).toUpperCase() +
+                    " " +
+                    user.Family.charAt(0).toUpperCase()
+                  }}</span>
                 </q-avatar>
-                <q-chip class="q-mt-md q-pt-xs" dense square>
+                <!-- <q-chip class="q-mt-md q-pt-xs" dense square>
                   <span
                     class="display-block q-mr-xs"
                     style="margin-top: -5px; font-size: 12px"
@@ -44,30 +52,87 @@
                   </span>
                   {{ user.IsSoldier === "1" ? user.NationalID : user.PerNo }}
                 </q-chip>
-                <div class="text-subtitle1 q-mb-xs">
+                <div
+                  class="text-subtitle1 q-mb-xs q-mt-sm text-center ellipsis"
+                  style="font-size: 14px; max-width: 170px"
+                >
                   <span class="text-grey text-italic">
                     {{ user ? ranks[user.Rank] : "" }}
                   </span>
                   {{ user ? user.Name + " " + user.Family : "" }}
-                </div>
 
-                <q-btn-group class="q-mt-xs">
-                  <q-btn
-                    :color="user ? 'negative' : 'positive'"
-                    :label="user ? 'خروج' : 'ورود'"
-                    size="12px"
-                    @click="logout"
-                    v-close-popup />
-                  <q-btn
-                    v-if="user"
-                    to="/profile"
-                    label="اطلاعات شخصی"
-                    color="primary"
-                    size="12px"
-                    v-close-popup
-                /></q-btn-group>
+                  <q-tooltip
+                    :delay="500"
+                    anchor="center left"
+                    self="center end"
+                  >
+                    {{ user ? user.Name + " " + user.Family : "" }}
+                  </q-tooltip>
+                </div> -->
 
-                <q-input
+                <div class="row q-mt-md">
+                  <q-list separator class="col-12" dense>
+                    <q-item to="/profile" clickable v-close-popup>
+                      <q-item-section class="text-primary text-left">
+                        اطلاعات شخصی
+                      </q-item-section>
+                      <q-item-section side>
+                        <q-icon color="primary" size="xs" name="account_box" />
+                      </q-item-section>
+                    </q-item>
+                    <q-item clickable>
+                      <q-item-section class="text-primary text-left">
+                        درخواست‌ها
+                      </q-item-section>
+                      <q-item-section side>
+                        <q-icon size="xs" name="receipt" color="primary" />
+                      </q-item-section>
+                      <q-menu anchor="center left" self="center start">
+                        <q-list>
+                          <q-item
+                            class="text-primary text-left"
+                            dense
+                            clickable
+                          >
+                            <q-item-section> مرخصی </q-item-section>
+                            <q-item-section side>
+                              <q-icon name="keyboard_arrow_left" />
+                            </q-item-section>
+                            <q-menu anchor="bottom left" self="center start">
+                              <q-list>
+                                <q-item
+                                  to="/stats/daysoff"
+                                  class="text-primary"
+                                  dense
+                                  clickable
+                                >
+                                  <q-item-section> ثبت </q-item-section>
+                                </q-item>
+                                <q-item
+                                  to="/stats/daysoff/list"
+                                  class="text-primary"
+                                  dense
+                                  clickable
+                                >
+                                  <q-item-section> نمایش </q-item-section>
+                                </q-item>
+                              </q-list>
+                            </q-menu>
+                          </q-item>
+                        </q-list>
+                      </q-menu>
+                    </q-item>
+                    <q-item @click="logout" clickable v-close-popup>
+                      <q-item-section class="text-negative text-left">
+                        خروج
+                      </q-item-section>
+                      <q-item-section side>
+                        <q-icon color="negative" size="xs" name="logout" />
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+
+                  <!-- <q-input
                   v-model="departments[user.Department]"
                   class="q-mt-md"
                   type="textarea"
@@ -76,11 +141,13 @@
                   style="background-color: #fafad2"
                   color="primary"
                   readonly
-                />
+                /> -->
+                </div>
               </div>
             </div>
           </q-btn-dropdown>
           <q-btn
+            class="col-auto"
             v-else
             size="13px"
             color="grey-1"
@@ -90,24 +157,17 @@
             icon="login"
             label="ورود به سامانه"
           />
-
-          <!-- <q-btn class="q-ml-sm" to="/" flat>
-            <q-icon name="home" />
-          </q-btn> -->
-          <q-btn class="q-ml-md" icon="home" to="/" />
-          <div style="display: inline-block" class="q-ml-md">
-            <q-tabs align="left">
-              <!-- <q-route-tab to="/"> <q-icon name="home" /> </q-route-tab> -->
-              <q-route-tab to="/users" label="کاربران" />
-              <q-route-tab to="/people" label="پرسنل" />
-              <q-route-tab to="/stats" label="آمار" />
-            </q-tabs>
+          <div class="col text-center" style="font-size: 14px">
+            سامانه آمار و اطلاعات پرسنل
+            <span class="text-bold">
+              {{ militaryBaseNameFa }}
+            </span>
           </div>
         </q-toolbar-title>
 
-        <LiveTime class="q-mr-md" />
+        <LiveTime />
 
-        <div>آمار - نسخه {{ appVersion }}</div>
+        <!-- <div>آمار - نسخه {{ appVersion }}</div> -->
 
         <!-- <img
           alt="HR App Logo"
@@ -117,6 +177,95 @@
         /> -->
       </q-toolbar>
     </q-header>
+
+    <q-drawer
+      v-model="leftDrawerOpen"
+      show-if-above
+      :mini="!leftDrawerOpen || drawerMiniState"
+      @click.capture="toggleLeftDrawer"
+      :width="57"
+      bordered
+      :breakpoint="500"
+    >
+      <div class="row justify-center">
+        <!-- button for the available routes -->
+        <div class="col-auto q-mt-sm" v-for="(link, i) in links" :key="i">
+          <q-btn :to="link.to" color="primary" flat :icon="link.icon">
+            <q-tooltip
+              :delay="500"
+              anchor="center right"
+              self="center end"
+              transition-show="jump-right"
+              transition-hide="jump-left"
+              :offset="[2, 0]"
+            >
+              <span style="font-size: 14px"> {{ link.tooltip }} </span>
+            </q-tooltip>
+          </q-btn>
+        </div>
+
+        <!-- button for the stats routes -->
+        <div class="col-auto q-mt-sm">
+          <q-btn color="primary" flat icon="table_chart">
+            <q-menu anchor="center right" self="center end">
+              <q-list separator dense style="min-width: 100px">
+                <q-item to="/stats/register" clickable v-close-popup>
+                  <q-item-section> ثبت آمار روزانه </q-item-section>
+                </q-item>
+                <q-item to="/stats/query" clickable v-close-popup>
+                  <q-item-section> گزارش گیری </q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+            <q-tooltip
+              :delay="500"
+              transition-show="jump-right"
+              transition-hide="jump-left"
+              :offset="[2, 0]"
+            >
+              <span style="font-size: 14px"> آمار </span>
+            </q-tooltip>
+          </q-btn>
+        </div>
+
+        <!-- button for the excessive features of the app -->
+        <div class="col-auto q-mt-sm">
+          <q-btn color="primary" flat icon="more_horiz">
+            <q-menu anchor="center right" self="center end">
+              <q-list dense style="min-width: 100px">
+                <q-item clickable>
+                  <q-item-section> امکانات سامانه دستور </q-item-section>
+                  <q-item-section side>
+                    <q-icon name="keyboard_arrow_left" />
+                  </q-item-section>
+
+                  <q-menu anchor="center right" self="center end">
+                    <q-list>
+                      <q-item to="/dastoor/upload" dense clickable>
+                        <q-item-section>
+                          بارگذاری گروهی ماده دستور
+                        </q-item-section>
+                        <q-item-section side>
+                          <q-icon name="post_add" />
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-item>
+              </q-list>
+            </q-menu>
+            <q-tooltip
+              :delay="500"
+              transition-show="jump-right"
+              transition-hide="jump-left"
+              :offset="[2, 0]"
+            >
+              <span style="font-size: 14px"> سایر امکانات </span>
+            </q-tooltip>
+          </q-btn>
+        </div>
+      </div>
+    </q-drawer>
 
     <!-- <q-drawer v-model="leftDrawerOpen" :width="180" bordered>
       <q-list>
@@ -137,29 +286,32 @@
 </template>
 
 <script>
-import EssentialLink from "components/EssentialLink.vue";
+// import EssentialLink from "components/EssentialLink.vue";
 import LiveTime from "components/LiveTime.vue";
-import { appVersion } from "../store/variables.js";
+import { militaryBaseNameFa } from "../store/variables.js";
 
-// const linksList = [
-//   {
-//     title: "لیست کاربران",
-//     icon: "manage_accounts",
-//     link: "/users",
-//   },
-//   {
-//     title: "لیست پرسنل",
-//     caption: "پایور و وظیفه",
-//     icon: "people",
-//     link: "/people",
-//   },
-//   {
-//     title: "آمار",
-//     caption: "مشاهده و ثبت",
-//     icon: "receipt_long",
-//     link: "/stats",
-//   },
-// ];
+const links = [
+  {
+    tooltip: "صفحه اصلی",
+    icon: "home",
+    to: "/",
+  },
+  {
+    tooltip: "کاربران",
+    icon: "recent_actors",
+    to: "/users",
+  },
+  {
+    tooltip: "پرسنل",
+    icon: "people",
+    to: "/people",
+  },
+  // {
+  //   tooltip: "آمار",
+  //   icon: "table_chart",
+  //   to: "/stats",
+  // },
+];
 
 import { computed, defineComponent, ref } from "vue";
 import { useStore } from "vuex";
@@ -171,7 +323,6 @@ export default defineComponent({
   name: "MainLayout",
 
   components: {
-    // EssentialLink,
     LiveTime,
   },
 
@@ -181,28 +332,25 @@ export default defineComponent({
     const $q = useQuasar();
 
     const leftDrawerOpen = ref(false);
+    const drawerMiniState = ref(false);
 
     const user = computed(() => store.state.user.data);
-    const departments = computed(() =>
-      Object.assign(
-        {},
-        ...store.state.user.departments.map(({ label, value }) => ({
-          [value]: label,
-        }))
-      )
-    );
 
     return {
-      // essentialLinks: linksList,
-      appVersion,
+      links,
+      militaryBaseNameFa,
       leftDrawerOpen,
+      drawerMiniState,
       user,
-      departments,
       ranks,
 
-      // toggleLeftDrawer() {
-      //   leftDrawerOpen.value = !leftDrawerOpen.value;
-      // },
+      toggleLeftDrawer(e) {
+        // leftDrawerOpen.value = !leftDrawerOpen.value;
+        if (drawerMiniState.value) {
+          drawerMiniState.value = false;
+          e.stopPropagation();
+        }
+      },
 
       logout() {
         store.commit("user/logout");
@@ -217,11 +365,4 @@ export default defineComponent({
   },
 });
 </script>
-<style lang="sass" scoped>
-.user-photo-placeholder
-  margin-top: -107%
-  font-size: 22px
-  color: $primary
-.user-photo-avatar
-  border: 1px solid $primary
-</style>
+<style></style>
