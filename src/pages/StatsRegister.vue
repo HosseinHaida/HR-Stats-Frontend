@@ -26,6 +26,7 @@
             :columns="columns"
             row-key="name"
             flat
+            table-header-class="bg-grey-2"
             binary-state-sort
             :visible-columns="visibleColumns"
           >
