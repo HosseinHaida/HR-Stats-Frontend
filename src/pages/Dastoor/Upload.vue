@@ -182,7 +182,9 @@ export default {
       const ifYes = user.value.permissions.authedDepartments.filter(
         (loopAuth) =>
           loopAuth.role === "can_upload_dastoor" ||
-          loopAuth.role === "can_do_all"
+          loopAuth.role === "can_do_all" ||
+          loopAuth.role === "head" ||
+          loopAuth.role === "succ"
       );
       return ifYes.length > 0;
     });
