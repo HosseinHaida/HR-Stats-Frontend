@@ -67,11 +67,11 @@ export async function setDaysOff({ rootState, commit }, data) {
     );
 }
 
-export async function fetchDaysOff({ rootState, commit, dispatch }) {
+export async function fetchDaysOff({ rootState, commit, dispatch }, conf) {
   commit("setDaysOffFetchPending", true);
   if (!rootState.user.t)
     await dispatch("user/fetchUserData", null, { root: true });
-  const url = `${apiUrl}/stats/days_off/list`;
+  const url = `${apiUrl}/stats/days_off/list/?search_text=${conf.searchText}&departments=${conf.departments}`;
   return await axios
     .get(url, {
       headers: {
