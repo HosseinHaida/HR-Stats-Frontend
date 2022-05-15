@@ -59,7 +59,7 @@
         >
         <q-card-section horizontal>
           <q-card-section class="col-auto flex flex-center">
-            <q-avatar v-if="loopUser.Photo" size="80px">
+            <q-avatar v-if="loopUser.Photo" size="70px">
               <q-img :ratio="1" :src="loopUser.Photo" />
             </q-avatar>
           </q-card-section>
