@@ -8,21 +8,13 @@
       title="مرخصی‌ها"
       :rows="rows"
       :columns="columns"
-      row-key="PerNo"
+      row-key="id"
       :visible-columns="visibleColumns"
       table-header-class="bg-grey-2"
-      selection="single"
-      v-model:selected="selection"
+      :pagination="initialPagination"
     >
       <template v-slot:body="props">
-        <q-tr
-          :props="props"
-          class="cursor-pointer"
-          @click="props.selected = true"
-        >
-          <q-td>
-            <q-checkbox v-model="props.selected" />
-          </q-td>
+        <q-tr :props="props" class="cursor-pointer">
           <q-td key="ShRank" :props="props">
             {{ ranks[props.row.ShRank] }}
           </q-td>
@@ -38,20 +30,61 @@
           <q-td key="type" :props="props">
             {{ props.row.type === "s" ? "سالیانه" : "تشویقی" }}
           </q-td>
-          <!-- <q-td key="duration" :props="props">
-            {{ props.row.off_to.getTime() - props.row.off_from.getTime() }}
-          </q-td> -->
           <q-td key="off_from" :props="props">
             {{ props.row.off_from }}
           </q-td>
           <q-td key="off_to" :props="props">
             {{ props.row.off_to }}
           </q-td>
-          <q-td key="isApprovedByHR" :props="props">
-            {{ props.row.isApprovedByHR === "0" ? "..." : "تأیید شده" }}
+          <q-td key="loc" :props="props">
+            {{ props.row.loc }}
           </q-td>
           <q-td key="isApprovedByHead" :props="props">
-            {{ props.row.isApprovedByHead === "0" ? "..." : "تأیید شده" }}
+            <q-btn
+              class="q-px-sm"
+              v-if="
+                canConfirmHead(props.row.Department) &&
+                props.row.isApprovedByHead === '0'
+              "
+              dense
+              color="secondary"
+              label="تأیید"
+              @click="onHeadConfirm(props.row.id)"
+            />
+            <span
+              v-if="
+                !canConfirmHead(props.row.Department) &&
+                props.row.isApprovedByHead === '0'
+              "
+            >
+              در انتظار تأیید...
+            </span>
+            <q-icon
+              v-if="props.row.isApprovedByHead === '1'"
+              name="check"
+              color="secondary"
+              size="sm"
+            />
+          </q-td>
+          <q-td key="isApprovedByHR" :props="props">
+            <q-btn
+              class="q-px-sm"
+              v-if="canConfirmHR && props.row.isApprovedByHR === '0'"
+              dense
+              color="primary"
+              label="تأیید"
+              @click="onHRConfirm(props.row.id)"
+            />
+
+            <span v-if="!canConfirmHR && props.row.isApprovedByHR === '0'">
+              در انتظار تأیید...
+            </span>
+            <q-icon
+              v-if="props.row.isApprovedByHR === '1'"
+              name="check"
+              color="primary"
+              size="sm"
+            />
           </q-td>
           <q-td key="creator" :props="props">
             {{ props.row.creator }}
@@ -84,7 +117,7 @@
         <q-input
           class="q-ml-md q-mr-sm col"
           filled
-          v-model="peopleSearchText"
+          v-model="daysOffSearchText"
           dense
           debounce="400"
           label="جستجو"
@@ -151,13 +184,16 @@
 <script>
 import { useQuasar } from "quasar";
 import { useStore } from "vuex";
-import { onMounted, computed, ref, onUnmounted } from "vue";
-import { ranks, offDaysTypes } from "src/store/variables";
+import { onMounted, computed, ref, onUnmounted, watch } from "vue";
+import { ranks } from "src/store/variables";
 
 export default {
   setup() {
     const $q = useQuasar();
     const store = useStore();
+
+    let selectedDepartments = ref(null);
+    let daysOffSearchText = ref(null);
 
     const columns = [
       {
@@ -197,13 +233,6 @@ export default {
         field: "type",
         sortable: true,
       },
-      // {
-      //   name: "duration",
-      //   label: "مدت",
-      //   align: "left",
-      //   field: "duration",
-      //   sortable: true,
-      // },
       {
         name: "off_from",
         label: "شروع",
@@ -216,6 +245,13 @@ export default {
         label: "پایان",
         align: "left",
         field: "off_to",
+        sortable: true,
+      },
+      {
+        name: "loc",
+        label: "مقصد",
+        align: "left",
+        field: "loc",
         sortable: true,
       },
       {
@@ -247,19 +283,68 @@ export default {
 
     const daysOffList = computed(() => store.state.stats.daysOffList);
     const rows = computed(() => store.state.stats.daysOffList);
+    const user = computed(() => store.state.user.data);
+
+    const canConfirmHR = computed(() => {
+      return (
+        user.value &&
+        user.value.Department === "23" &&
+        user.value.permissions &&
+        user.value.permissions.authedDepartments &&
+        user.value.permissions.authedDepartments.findIndex((depRole) => {
+          return (
+            (depRole.role === "can_do_all" ||
+              depRole.role === "head" ||
+              depRole.role === "succ") &&
+            depRole.value === "23"
+          );
+        }) !== -1
+      );
+    });
+
+    const canConfirmHead = (personDep) => {
+      return (
+        user.value &&
+        user.value.Department === personDep &&
+        user.value.permissions &&
+        user.value.permissions.authedDepartments &&
+        user.value.permissions.authedDepartments.findIndex((depRole) => {
+          return (
+            (depRole.role === "can_do_all" ||
+              depRole.role === "head" ||
+              depRole.role === "succ") &&
+            depRole.value === personDep
+          );
+        }) !== -1
+      );
+    };
 
     onMounted(() => {
       fetchRecords();
     });
 
+    watch(daysOffSearchText, (value) => {
+      fetchRecords();
+    });
+
+    watch(selectedDepartments, (value) => {
+      fetchRecords();
+    });
+
     const fetchRecords = () => {
+      let selectedDepartmentsIDs = [];
+      if (selectedDepartments.value) {
+        selectedDepartments.value.forEach((dep) => {
+          selectedDepartmentsIDs.push(dep.value);
+        });
+      }
       store
-        .dispatch(
-          "stats/fetchDaysOff"
-          // ,{
-          //   searchText: searchText.value,
-          // }
-        )
+        .dispatch("stats/fetchDaysOff", {
+          searchText: daysOffSearchText.value,
+          departments: selectedDepartments.value
+            ? selectedDepartmentsIDs
+            : null,
+        })
         .then(({ status, message }) => {
           if (status === "error") {
             $q.notify({
@@ -271,6 +356,9 @@ export default {
         });
     };
 
+    const onHeadConfirm = (id) => {};
+    const onHRConfirm = (id) => {};
+
     onUnmounted(() => {
       store.commit("stats/setDaysOffList", []);
     });
@@ -281,8 +369,14 @@ export default {
       columns,
       rows,
       ranks,
-      offDaysTypes,
+      user,
+      selectedDepartments,
+      daysOffSearchText,
+      canConfirmHR,
+      canConfirmHead,
       selection: ref([]),
+      onHeadConfirm,
+      onHRConfirm,
       visibleColumns: ref([
         "ShRank",
         "Acp_Name",
@@ -291,9 +385,15 @@ export default {
         "type",
         "off_from",
         "off_to",
+        "loc",
         "isApprovedByHR",
         "isApprovedByHead",
       ]),
+      initialPagination: ref({
+        sortBy: "desc",
+        descending: false,
+        rowsPerPage: 10,
+      }),
     };
   },
 };
