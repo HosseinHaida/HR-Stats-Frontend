@@ -36,6 +36,35 @@ export async function register({ rootState, commit }, stat) {
     );
 }
 
+export async function fetchAlreadySetStats({ rootState, commit }, data) {
+  return await axios
+    .get(apiUrl + "/stats/fetch_stats", data, {
+      headers: {
+        token: rootState.user.t,
+      },
+    })
+    .then(
+      (res) => {
+        return {
+          status: "success",
+          // message: messages.statRegistered,
+        };
+      },
+      (error) => {
+        if (!error.response) {
+          return {
+            status: "error",
+            message: messages.noConnection,
+          };
+        }
+        return {
+          status: "error",
+          message: error.response.data.error,
+        };
+      }
+    );
+}
+
 export async function setDaysOff({ rootState, commit }, data) {
   commit("setDaysOffPending", true);
   return await axios

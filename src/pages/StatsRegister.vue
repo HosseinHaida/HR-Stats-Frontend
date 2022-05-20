@@ -82,17 +82,48 @@
                 <q-td key="State" :props="props">
                   <span
                     v-if="personnelStatus[props.row.PerNo]"
-                    class="q-px-sm q-py-xs rounded-borders text-positive border-positive"
+                    class="q-px-sm q-py-xs"
                   >
-                    <q-icon
+                    <!--  rounded-borders text-positive border-positive -->
+                    <!-- <q-icon
                       name="done"
                       color="positive"
                       size="xs"
                       style="margin-top: -2px"
                     />
-                    {{ personnelStatus[props.row.PerNo]["label"] }}
+                    {{ personnelStatus[props.row.PerNo]["label"]  }} -->
+                    <q-btn-group>
+                      <q-btn
+                        :icon="isHazer(props.row.PerNo) ? 'check' : 'circle'"
+                        :color="
+                          isHazer(props.row.PerNo) ? 'positive' : 'grey-5'
+                        "
+                        @click="
+                          personnelStatus[props.row.PerNo] = {
+                            value: 'Hazer',
+                            label: 'حاضر',
+                          }
+                        "
+                        push
+                        label="حاضر"
+                      />
+                      <q-btn
+                        :icon="isGhayeb(props.row.PerNo) ? 'close' : 'circle'"
+                        :color="
+                          isGhayeb(props.row.PerNo) ? 'negative' : 'grey-5'
+                        "
+                        @click="
+                          personnelStatus[props.row.PerNo] = {
+                            value: 'Ghayeb',
+                            label: 'غایب',
+                          }
+                        "
+                        push
+                        label="غایب"
+                      />
+                    </q-btn-group>
                   </span>
-                  <q-popup-edit
+                  <!-- <q-popup-edit
                     auto-save
                     :ref="'popup_' + props.row.PerNo"
                     v-model="props.row.State"
@@ -118,7 +149,7 @@
                         </q-item>
                       </template>
                     </q-select>
-                  </q-popup-edit>
+                  </q-popup-edit> -->
                 </q-td>
               </q-tr>
             </template>
@@ -281,6 +312,13 @@ export default {
     const departments = computed(() => store.getters["user/getDepartments"]);
     const registerPending = computed(() => store.state.stats.registerPending);
 
+    const isHazer = (perNo) =>
+      personnelStatus.value[perNo] &&
+      personnelStatus.value[perNo]["value"] === "Hazer";
+    const isGhayeb = (perNo) =>
+      personnelStatus.value[perNo] &&
+      personnelStatus.value[perNo]["value"] === "Ghayeb";
+
     const selectAuthedDepartment = (selection) => {
       selectedAuthedDepartment.value = selection;
       authedDepartmentsSelectToggle.value = false;
@@ -308,7 +346,30 @@ export default {
         });
         fetchPeople();
       }
+      // fetchTodaysStatsIfAlreadySet();
     });
+
+    const fetchTodaysStatsIfAlreadySet = () => {
+      if (!selectedAuthedDepartment.value)
+        return $q.notify({
+          color: "red-5",
+          icon: "warning",
+          message: "قسمت نامشخص",
+        });
+      store
+        .dispatch("stats/fetchAlreadySetStats", {
+          department: selectedAuthedDepartment.value["value"],
+        })
+        .then(({ status, message }) => {
+          if (status === "error") {
+            $q.notify({
+              color: "red-5",
+              icon: "warning",
+              message: message,
+            });
+          }
+        });
+    };
 
     const fetchPeople = () => {
       if (!selectedAuthedDepartment.value)
@@ -375,7 +436,8 @@ export default {
       peopleSearchText,
       selectAuthedDepartment,
       fetchPeople,
-
+      isHazer,
+      isGhayeb,
       onStatsRegister() {
         // console.log(personnelStatus.value);
         store
