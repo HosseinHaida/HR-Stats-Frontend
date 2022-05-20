@@ -36,9 +36,15 @@ export async function register({ rootState, commit }, stat) {
     );
 }
 
-export async function fetchAlreadySetStats({ rootState, commit }, data) {
+export async function fetchAlreadySetStats(
+  { rootState, commit, dispatch },
+  { department }
+) {
+  if (!rootState.user.t)
+    await dispatch("user/fetchUserData", null, { root: true });
+  const url = `${apiUrl}/stats/fetch_stats/?department=${department}`;
   return await axios
-    .get(apiUrl + "/stats/fetch_stats", data, {
+    .get(url, {
       headers: {
         token: rootState.user.t,
       },

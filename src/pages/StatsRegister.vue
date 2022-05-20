@@ -346,7 +346,7 @@ export default {
         });
         fetchPeople();
       }
-      // fetchTodaysStatsIfAlreadySet();
+      fetchTodaysStatsIfAlreadySet();
     });
 
     const fetchTodaysStatsIfAlreadySet = () => {
