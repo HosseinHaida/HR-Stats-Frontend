@@ -17,6 +17,7 @@ export async function register({ rootState, commit }, stat) {
         return {
           status: "success",
           message: messages.statRegistered,
+          delay: res.data.delay,
         };
       },
       (error) => {

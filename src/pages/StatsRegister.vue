@@ -92,7 +92,11 @@
                     />
                     {{ personnelStatus[props.row.PerNo]["label"] }}
                   </span>
-                  <q-popup-edit v-model="props.row.State">
+                  <q-popup-edit
+                    auto-save
+                    :ref="'popup_' + props.row.PerNo"
+                    v-model="props.row.State"
+                  >
                     <q-select
                       filled
                       v-model="personnelStatus[props.row.PerNo]"
@@ -130,7 +134,7 @@
           <q-icon class="q-mr-xs" name="done_all" />
           تایید و ذخیره
         </q-btn>
-        <q-btn color="secondary"> ذخیره پیش نویس </q-btn>
+        <!-- <q-btn color="secondary"> ذخیره پیش نویس </q-btn> -->
       </q-card-actions>
     </q-card>
 
@@ -184,7 +188,7 @@
 </template>
 
 <script>
-import { computed, ref, onBeforeMount, watch } from "vue";
+import { computed, ref, onBeforeMount, watch, toRefs } from "vue";
 import { useStore } from "vuex";
 import { roles, ranks, statuses } from "src/store/variables";
 import { useQuasar } from "quasar";
@@ -364,7 +368,6 @@ export default {
         "Family",
         "PerNo",
         "Rank",
-        // "Department",
         "IsSoldier",
         "State",
       ]),
@@ -380,20 +383,26 @@ export default {
             stats: personnelStatus.value,
             department: selectedAuthedDepartment.value["value"],
           })
-          .then(({ status, message }) => {
-            // if (status === "error") {
-            //   $q.notify({
-            //     color: "red-5",
-            //     icon: "warning",
-            //     message: message,
-            //   });
-            // } else
-            if (status === "success") {
+          .then(({ status, message, delay }) => {
+            if (status === "error") {
               $q.notify({
-                color: "green-4",
-                icon: "cloud_done",
+                color: "red-5",
+                icon: "warning",
                 message: message,
               });
+            } else if (status === "success") {
+              if (delay)
+                $q.notify({
+                  color: "warning",
+                  icon: "cloud_done",
+                  message: "آمار قسمت با وجود تاخیر ثبت شد",
+                });
+              else
+                $q.notify({
+                  color: "green-4",
+                  icon: "cloud_done",
+                  message: message,
+                });
             }
           });
       },

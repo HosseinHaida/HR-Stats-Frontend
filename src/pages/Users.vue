@@ -45,7 +45,7 @@
       <div class="note-warning q-pa-md rounded-borders">کاربری یافت نشد</div>
     </div>
     <div
-      class="col-xs-12 col-sm-4 col-lg-4 q-pa-sm"
+      class="col-xs-12 col-sm-6 col-lg-4 q-pa-sm"
       v-for="(loopUser, i) in users"
       :key="i"
     >
@@ -82,11 +82,11 @@
             class="items-end q-py-sm row col-auto justify-end"
           >
             <div class="row">
-              <q-btn
+              <!-- <q-btn
                 :to="'/users/' + loopUser.PerNo"
                 flat
                 icon="manage_accounts"
-              />
+              /> -->
               <q-btn
                 @click="
                   confirmDeleteRole(

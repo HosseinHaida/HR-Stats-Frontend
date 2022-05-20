@@ -22,6 +22,10 @@ const routes = [
         component: () => import("pages/StatsRegister.vue"),
       },
       {
+        path: "/stats/query",
+        component: () => import("pages/StatsQuery.vue"),
+      },
+      {
         path: "stats/daysoff",
         component: () => import("pages/StatsDaysOff.vue"),
       },
