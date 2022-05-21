@@ -4,5 +4,6 @@ export default function () {
     daysOffPending: false,
     daysOffFetchPending: false,
     daysOffList: null,
+    todaysStats: null,
   };
 }

@@ -19,7 +19,7 @@
           {{ today }}
         </span>
       </div>
-      <div class="col-12 q-mt-md">
+      <div class="col-12 q-mt-xs">
         <div class="q-pa-md">
           <q-table
             :rows="rows"
@@ -215,6 +215,7 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    {{ todaysStats }}
   </q-page>
 </template>
 
@@ -309,8 +310,10 @@ export default {
     const authedDepartmentsSelectToggle = ref(false);
     const selectedAuthedDepartment = ref(null);
 
+    const rows = computed(() => store.state.people.list);
     const departments = computed(() => store.getters["user/getDepartments"]);
     const registerPending = computed(() => store.state.stats.registerPending);
+    const todaysStats = computed(() => store.state.stats.todaysStats);
 
     const isHazer = (perNo) =>
       personnelStatus.value[perNo] &&
@@ -323,6 +326,7 @@ export default {
       selectedAuthedDepartment.value = selection;
       authedDepartmentsSelectToggle.value = false;
       fetchPeople();
+      fetchTodaysStatsIfAlreadySet();
     };
 
     let peopleSearchText = ref(null);
@@ -350,12 +354,7 @@ export default {
     });
 
     const fetchTodaysStatsIfAlreadySet = () => {
-      if (!selectedAuthedDepartment.value)
-        return $q.notify({
-          color: "red-5",
-          icon: "warning",
-          message: "قسمت نامشخص",
-        });
+      if (!selectedAuthedDepartment.value) return;
       store
         .dispatch("stats/fetchAlreadySetStats", {
           department: selectedAuthedDepartment.value["value"],
@@ -372,12 +371,7 @@ export default {
     };
 
     const fetchPeople = () => {
-      if (!selectedAuthedDepartment.value)
-        return $q.notify({
-          color: "red-5",
-          icon: "warning",
-          message: "قسمت نامشخص",
-        });
+      if (!selectedAuthedDepartment.value) return;
       store
         .dispatch("people/fetchPeople", {
           searchText: peopleSearchText.value,
@@ -398,7 +392,9 @@ export default {
       fetchPeople();
     });
 
-    const rows = computed(() => store.state.people.list);
+    watch(todaysStats, (value) => {
+      console.log("samoaleikom");
+    });
 
     watch(rows, (value) => {
       value.forEach((person) => {
@@ -424,6 +420,7 @@ export default {
       personnelStatus,
       statusOptions,
       registerPending,
+      todaysStats,
       visibleColumns: ref([
         "Name",
         "Family",

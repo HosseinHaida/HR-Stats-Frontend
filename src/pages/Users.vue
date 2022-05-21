@@ -191,13 +191,11 @@ export default {
         role,
       };
       confirmDelete.value = true;
-      console.log(tempRole.value);
     };
 
     const cancelAuthDelete = () => {
       tempRole.value = null;
       confirmDelete.value = false;
-      console.log(tempRole.value);
     };
 
     const deleteAuth = () => {
@@ -217,6 +215,7 @@ export default {
             });
           } else if (status === "success") {
             confirmDelete.value = false;
+            selectedDepartment.value = null;
             $q.notify({
               color: "green-4",
               icon: "delete",

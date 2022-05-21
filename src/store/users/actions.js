@@ -94,7 +94,6 @@ export async function deleteAuth(
         if (res.data && res.data.users) {
           commit("setUsersList", res.data.users);
         }
-        console.log(res.data);
         return {
           status: "success",
           message: messages.authDeletedSuccessfully,

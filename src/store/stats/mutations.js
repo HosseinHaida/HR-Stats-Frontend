@@ -13,3 +13,7 @@ export function setDaysOffFetchPending(state, status) {
 export function setDaysOffList(state, list) {
   state.daysOffList = list;
 }
+
+export function setTodaysStats(state, stats) {
+  state.todaysStats = stats;
+}
