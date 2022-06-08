@@ -31,56 +31,104 @@
             {{ props.row.type === "s" ? "سالیانه" : "تشویقی" }}
           </q-td>
           <q-td key="off_from" :props="props">
-            {{ props.row.off_from }}
+            {{
+              props.row.off_from.substring(props.row.off_from.indexOf("T"), 0)
+            }}
           </q-td>
           <q-td key="off_to" :props="props">
-            {{ props.row.off_to }}
+            {{ props.row.off_to.substring(props.row.off_to.indexOf("T"), 0) }}
           </q-td>
           <q-td key="loc" :props="props">
             {{ props.row.loc }}
+          </q-td>
+          <q-td key="isApprovedByAdmin" :props="props">
+            <q-btn
+              class="q-px-sm"
+              v-if="
+                canConfirmAdmin(props.row.Department) &&
+                (props.row.isApprovedByAdmin === '0' ||
+                  !props.row.isApprovedByAdmin)
+              "
+              dense
+              :color="roles['admin_head'].color"
+              label="تأیید"
+              @click="onApprove(props.row.id, 'admin', props.row.Department)"
+            />
+            <span
+              v-if="
+                !canConfirmAdmin(props.row.Department) &&
+                (props.row.isApprovedByAdmin === '0' ||
+                  !props.row.isApprovedByAdmin)
+              "
+            >
+              در انتظار تأیید...
+            </span>
+            <q-icon
+              v-if="
+                props.row.isApprovedByAdmin &&
+                props.row.isApprovedByAdmin !== '0'
+              "
+              name="check"
+              :color="roles['admin_head'].color"
+              size="sm"
+            />
           </q-td>
           <q-td key="isApprovedByHead" :props="props">
             <q-btn
               class="q-px-sm"
               v-if="
                 canConfirmHead(props.row.Department) &&
-                props.row.isApprovedByHead === '0'
+                (props.row.isApprovedByHead === '0' ||
+                  !props.row.isApprovedByHead)
               "
               dense
-              color="secondary"
+              :color="roles['head'].color"
               label="تأیید"
-              @click="onHeadConfirm(props.row.id)"
+              @click="onApprove(props.row.id, 'head', props.row.Department)"
             />
             <span
               v-if="
                 !canConfirmHead(props.row.Department) &&
-                props.row.isApprovedByHead === '0'
+                (props.row.isApprovedByHead === '0' ||
+                  !props.row.isApprovedByHead)
               "
             >
               در انتظار تأیید...
             </span>
             <q-icon
-              v-if="props.row.isApprovedByHead === '1'"
+              v-if="
+                props.row.isApprovedByHead && props.row.isApprovedByHead !== '0'
+              "
               name="check"
-              color="secondary"
+              :color="roles['head'].color"
               size="sm"
             />
           </q-td>
           <q-td key="isApprovedByHR" :props="props">
             <q-btn
               class="q-px-sm"
-              v-if="canConfirmHR && props.row.isApprovedByHR === '0'"
+              v-if="
+                canConfirmHR &&
+                (props.row.isApprovedByHR === '0' || !props.row.isApprovedByHR)
+              "
               dense
               color="primary"
               label="تأیید"
-              @click="onHRConfirm(props.row.id)"
+              @click="onApprove(props.row.id, 'hr', props.row.Department)"
             />
 
-            <span v-if="!canConfirmHR && props.row.isApprovedByHR === '0'">
+            <span
+              v-if="
+                !canConfirmHR &&
+                (props.row.isApprovedByHR === '0' || !props.row.isApprovedByHR)
+              "
+            >
               در انتظار تأیید...
             </span>
             <q-icon
-              v-if="props.row.isApprovedByHR === '1'"
+              v-if="
+                props.row.isApprovedByHR && props.row.isApprovedByHR !== '0'
+              "
               name="check"
               color="primary"
               size="sm"
@@ -185,7 +233,7 @@
 import { useQuasar } from "quasar";
 import { useStore } from "vuex";
 import { onMounted, computed, ref, onUnmounted, watch } from "vue";
-import { ranks } from "src/store/variables";
+import { ranks, roles } from "src/store/variables";
 
 export default {
   setup() {
@@ -208,7 +256,7 @@ export default {
         required: true,
         label: "نام",
         align: "left",
-        field: (row) => row.Acp_Name,
+        field: "Acp_Name",
         format: (val) => `${val}`,
         sortable: true,
       },
@@ -252,6 +300,13 @@ export default {
         label: "مقصد",
         align: "left",
         field: "loc",
+        sortable: true,
+      },
+      {
+        name: "isApprovedByAdmin",
+        label: "تأیید اداری",
+        align: "left",
+        field: "isApprovedByAdmin",
         sortable: true,
       },
       {
@@ -319,6 +374,23 @@ export default {
       );
     };
 
+    const canConfirmAdmin = (personDep) => {
+      return (
+        user.value &&
+        user.value.Department === personDep &&
+        user.value.permissions &&
+        user.value.permissions.authedDepartments &&
+        user.value.permissions.authedDepartments.findIndex((depRole) => {
+          return (
+            (depRole.role === "can_do_all" ||
+              depRole.role === "admin_head" ||
+              depRole.role === "admin_succ") &&
+            depRole.value === personDep
+          );
+        }) !== -1
+      );
+    };
+
     onMounted(() => {
       fetchRecords();
     });
@@ -356,8 +428,30 @@ export default {
         });
     };
 
-    const onHeadConfirm = (id) => {};
-    const onHRConfirm = (id) => {};
+    const onApprove = (id, role, dep) => {
+      store
+        .dispatch("stats/approveADayOff", {
+          id,
+          role,
+          dep,
+        })
+        .then(({ status, message }) => {
+          if (status === "error") {
+            $q.notify({
+              color: "red-5",
+              icon: "warning",
+              message: message,
+            });
+          } else if (status === "success") {
+            $q.notify({
+              color: "green-4",
+              icon: "cloud_done",
+              message: message,
+            });
+            fetchRecords();
+          }
+        });
+    };
 
     onUnmounted(() => {
       store.commit("stats/setDaysOffList", []);
@@ -369,14 +463,15 @@ export default {
       columns,
       rows,
       ranks,
+      roles,
       user,
       selectedDepartments,
       daysOffSearchText,
       canConfirmHR,
       canConfirmHead,
+      canConfirmAdmin,
       selection: ref([]),
-      onHeadConfirm,
-      onHRConfirm,
+      onApprove,
       visibleColumns: ref([
         "ShRank",
         "Acp_Name",
@@ -386,8 +481,9 @@ export default {
         "off_from",
         "off_to",
         "loc",
-        "isApprovedByHR",
+        "isApprovedByAdmin",
         "isApprovedByHead",
+        "isApprovedByHR",
       ]),
       initialPagination: ref({
         sortBy: "desc",

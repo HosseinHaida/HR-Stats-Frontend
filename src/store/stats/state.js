@@ -5,5 +5,11 @@ export default function () {
     daysOffFetchPending: false,
     daysOffList: null,
     todaysStats: null,
+    todaysOffs: null,
+    todaysStatsPending: false,
+    // approveHRPending: false,
+    // approveOperatorPending: false,
+    // approveAdminPending: false,
+    // approveHeadPending: false,
   };
 }

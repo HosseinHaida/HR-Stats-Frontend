@@ -6,7 +6,8 @@ export async function fetchPeople({ rootState, commit, dispatch }, config) {
   commit("setPeopleFetchPending", true);
   if (!rootState.user.t)
     await dispatch("user/fetchUserData", null, { root: true });
-  const url = `${apiUrl}/people/list/?search_text=${config.searchText}&departments=${config.departments}`;
+  let url = `${apiUrl}/people/list/?search_text=${config.searchText}&departments=${config.departments}`;
+  config.noOffs ? (url += `&nooffs=true`) : (url += `&nooffs=false`);
   return await axios
     .get(url, {
       headers: {
@@ -21,6 +22,7 @@ export async function fetchPeople({ rootState, commit, dispatch }, config) {
           pages: res.data.pages,
           count: res.data.total,
         });
+        commit("stats/setTodaysOffs", res.data.offs, { root: true });
         return {
           status: "success",
           message: messages.peopleFetchSuccessful,

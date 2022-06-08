@@ -4,7 +4,6 @@ import axios from "axios";
 
 export async function register({ rootState, commit }, stat) {
   commit("setRegisterPending", true);
-  console.log(stat);
   return await axios
     .post(apiUrl + "/stats/register", stat, {
       headers: {
@@ -36,10 +35,11 @@ export async function register({ rootState, commit }, stat) {
     );
 }
 
-export async function fetchAlreadySetStats(
-  { rootState, commit, dispapost },
+export async function fetchTodaysStatsIfSet(
+  { rootState, commit, dispatch },
   data
 ) {
+  commit("setTodaysStatsPending", true);
   if (!rootState.user.t)
     await dispatch("user/fetchUserData", null, { root: true });
   const url = `${apiUrl}/stats/fetch_stats`;
@@ -52,12 +52,83 @@ export async function fetchAlreadySetStats(
     .then(
       (res) => {
         commit("setTodaysStats", res.data.stats);
+        commit("setTodaysOffs", res.data.offs);
+        commit("setTodaysStatsPending", false);
         return {
           status: "success",
           // message: messages.statRegistered,
         };
       },
       (error) => {
+        commit("setTodaysStatsPending", false);
+        if (!error.response) {
+          return {
+            status: "error",
+            message: messages.noConnection,
+          };
+        }
+        return {
+          status: "error",
+          message: error.response.data.error,
+        };
+      }
+    );
+}
+
+export async function approveStats({ rootState, commit }, data) {
+  // commit("setApproveHRPending", true);
+  return await axios
+    .post(apiUrl + "/stats/approve", data, {
+      headers: {
+        token: rootState.user.t,
+      },
+    })
+    .then(
+      (res) => {
+        // commit("setApproveHRPending", false);
+        return {
+          status: "success",
+          message: messages.approved,
+        };
+      },
+      (error) => {
+        // commit("setApproveHRPending", false);
+        if (!error.response) {
+          return {
+            status: "error",
+            message: messages.noConnection,
+          };
+        }
+        return {
+          status: "error",
+          message: error.response.data.error,
+        };
+      }
+    );
+}
+
+export async function approveADayOff({ rootState, commit }, { id, role, dep }) {
+  // commit("setApproveHRPending", true);
+  return await axios
+    .post(
+      apiUrl + "/stats/approve/day_off",
+      { id, role, dep },
+      {
+        headers: {
+          token: rootState.user.t,
+        },
+      }
+    )
+    .then(
+      (res) => {
+        // commit("setApproveHRPending", false);
+        return {
+          status: "success",
+          message: messages.approved,
+        };
+      },
+      (error) => {
+        // commit("setApproveHRPending", false);
         if (!error.response) {
           return {
             status: "error",

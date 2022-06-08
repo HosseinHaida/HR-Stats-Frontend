@@ -12,4 +12,5 @@ export const messages = {
   personDepSetSuccess: "قسمت کارمند/وظیفه تغییر یافت",
   daysOffFetchSuccessful: "لیست مرخصی‌ها واکشی شد",
   profilePhotoUploadSuccess: "تصویر پروفایل با موفقیت بارگذاری شد",
+  approved: "با موفقیت تایید شد",
 };

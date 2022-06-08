@@ -43,32 +43,6 @@
                     user.Family.charAt(0).toUpperCase()
                   }}</span>
                 </q-avatar>
-                <!-- <q-chip class="q-mt-md q-pt-xs" dense square>
-                  <span
-                    class="display-block q-mr-xs"
-                    style="margin-top: -5px; font-size: 12px"
-                  >
-                    {{ user.IsSoldier === "1" ? "ش پ" : "ش م" }} :
-                  </span>
-                  {{ user.IsSoldier === "1" ? user.NationalID : user.PerNo }}
-                </q-chip>
-                <div
-                  class="text-subtitle1 q-mb-xs q-mt-sm text-center ellipsis"
-                  style="font-size: 14px; max-width: 170px"
-                >
-                  <span class="text-grey text-italic">
-                    {{ user ? ranks[user.Rank] : "" }}
-                  </span>
-                  {{ user ? user.Name + " " + user.Family : "" }}
-
-                  <q-tooltip
-                    :delay="500"
-                    anchor="center left"
-                    self="center end"
-                  >
-                    {{ user ? user.Name + " " + user.Family : "" }}
-                  </q-tooltip>
-                </div> -->
 
                 <div class="row q-mt-md">
                   <q-list separator class="col-12" dense>
@@ -131,17 +105,6 @@
                       </q-item-section>
                     </q-item>
                   </q-list>
-
-                  <!-- <q-input
-                  v-model="departments[user.Department]"
-                  class="q-mt-md"
-                  type="textarea"
-                  label="قسمت"
-                  outlined
-                  style="background-color: #fafad2"
-                  color="primary"
-                  readonly
-                /> -->
                 </div>
               </div>
             </div>
@@ -210,7 +173,7 @@
             <q-menu anchor="center right" self="center end">
               <q-list separator dense style="min-width: 100px">
                 <q-item to="/stats/register" clickable v-close-popup>
-                  <q-item-section> ثبت آمار روزانه </q-item-section>
+                  <q-item-section> آمار روزانه </q-item-section>
                 </q-item>
                 <q-item to="/stats/query" clickable v-close-popup>
                   <q-item-section> گزارش گیری </q-item-section>

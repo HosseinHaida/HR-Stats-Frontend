@@ -11,30 +11,37 @@ export const roles = {
   can_do_all: {
     label: "ادمین",
     badgeColor: "primary",
+    color: "primary",
   },
   operator: {
     label: "متصدی آمار",
     badgeColor: "teal",
+    color: "teal",
   },
   admin_head: {
     label: "رئیس اداری",
     badgeColor: "blue",
+    color: "blue",
   },
   admin_succ: {
     label: "جانشین اداری",
     badgeColor: "blue-4",
+    color: "blue-4",
   },
   head: {
     label: "فرمانده",
-    badgeColor: "pink",
+    badgeColor: "accent",
+    color: "accent",
   },
   succ: {
     label: "جانشین",
     badgeColor: "pink-4",
+    color: "pink-4",
   },
   dude: {
     label: "کاربر معمولی",
     badgeColor: "grey",
+    color: "grey",
   },
   can_upload_dastoor: {
     label: "متصدی سامانه دستور",
@@ -42,8 +49,25 @@ export const roles = {
   },
 };
 
+export const statsMeta = {
+  Hazer: {
+    color: "positive",
+    style: "color: #21BA45; border: 1px solid #21BA45",
+  },
+  Ghayeb: {
+    color: "negative",
+    style: "color: #C10015; border: 1px solid #C10015",
+  },
+  Morkhasi: {
+    color: "accent",
+    style: "color: #9C27B0; border: 1px solid #9C27B0",
+  },
+};
+
 export const statuses = {
   Hazer: "حاضر",
+  Ghayeb: "غایب",
+  Morkhasi: "مرخصی",
   // Negahban: "نگهبان",
   // EsterahatNegahbani: "استراحت نگهبانی",
   // EsterahatTirandazi: "استراحت تیراندازی",
@@ -53,8 +77,6 @@ export const statuses = {
   // TasvieHesab: "تسویه حساب",
   // ModavematKar: "مداومت کار",
   // EsterahatPezeshki: "استراحت پزشکی",
-  Ghayeb: "غایب",
-  Morkhasi: "مرخصی",
   // Farari: "فراری",
   // BazdashtGaah: "بازداشتگاه",
   // TirandaziRoozane: "تیراندازی روزانه",

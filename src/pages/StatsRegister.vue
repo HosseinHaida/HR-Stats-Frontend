@@ -19,13 +19,14 @@
           {{ today }}
         </span>
       </div>
-      <div class="col-12 q-mt-xs">
-        <div class="q-pa-md">
+      <div class="col-12">
+        <div class="q-px-md q-pt-md">
           <q-table
             :rows="rows"
             :columns="columns"
             row-key="name"
             flat
+            :loading="todaysStatsPending || peopleFetchPending"
             table-header-class="bg-grey-2"
             binary-state-sort
             :visible-columns="visibleColumns"
@@ -56,10 +57,30 @@
                 class="q-ml-md col"
                 v-model="peopleSearchText"
                 dense
+                :disable="isSearchDisabled"
                 filled
                 debounce="400"
                 label="جستجو"
               />
+              <q-btn-toggle
+                v-if="todaysOffs"
+                class="col-auto q-ml-md"
+                v-model="offsToggle"
+                color="white"
+                toggle-color="primary"
+                text-color="primary"
+                push
+                :options="[
+                  { label: 'مرخصی‌ها', value: 'offs', slot: 'offs' },
+                  { label: 'آمار کلی', value: 'all' },
+                ]"
+              >
+                <template v-slot:offs>
+                  <q-badge color="accent" floating>
+                    {{ todaysOffs.length }}
+                  </q-badge>
+                </template>
+              </q-btn-toggle>
             </template>
             <template v-slot:body="props">
               <q-tr :props="props">
@@ -82,17 +103,18 @@
                 <q-td key="State" :props="props">
                   <span
                     v-if="personnelStatus[props.row.PerNo]"
-                    class="q-px-sm q-py-xs"
+                    class="q-px-sm q-py-xs rounded-borders"
+                    :style="
+                      todaysStats
+                        ? statsMeta[personnelStatus[props.row.PerNo]['value']]
+                            .style
+                        : ''
+                    "
                   >
-                    <!--  rounded-borders text-positive border-positive -->
-                    <!-- <q-icon
-                      name="done"
-                      color="positive"
-                      size="xs"
-                      style="margin-top: -2px"
-                    />
-                    {{ personnelStatus[props.row.PerNo]["label"]  }} -->
-                    <q-btn-group>
+                    <span v-if="todaysStats">
+                      {{ personnelStatus[props.row.PerNo]["label"] }}
+                    </span>
+                    <q-btn-group v-if="!todaysStats && !todaysStatsPending">
                       <q-btn
                         :icon="isHazer(props.row.PerNo) ? 'check' : 'circle'"
                         :color="
@@ -123,7 +145,8 @@
                       />
                     </q-btn-group>
                   </span>
-                  <!-- <q-popup-edit
+                  <q-popup-edit
+                    v-if="todaysStats"
                     auto-save
                     :ref="'popup_' + props.row.PerNo"
                     v-model="props.row.State"
@@ -149,7 +172,7 @@
                         </q-item>
                       </template>
                     </q-select>
-                  </q-popup-edit> -->
+                  </q-popup-edit>
                 </q-td>
               </q-tr>
             </template>
@@ -157,15 +180,124 @@
         </div>
       </div>
       <q-card-actions>
-        <q-btn
-          :loading="registerPending"
-          @click="onStatsRegister()"
-          color="primary"
-        >
-          <q-icon class="q-mr-xs" name="done_all" />
-          تایید و ذخیره
-        </q-btn>
-        <!-- <q-btn color="secondary"> ذخیره پیش نویس </q-btn> -->
+        <div class="row justify-end" style="width: 100%">
+          <div class="col-auto">
+            <q-btn
+              :loading="registerPending"
+              @click="onStatsRegister()"
+              color="primary"
+              v-if="!todaysStats"
+            >
+              <q-icon class="q-mr-xs" name="done_all" />
+              تایید و ذخیره
+            </q-btn>
+            <q-btn v-else color="primary">
+              <q-icon class="q-mr-xs" size="18px" name="edit" />
+              ویرایش
+            </q-btn>
+          </div>
+          <q-space />
+          <!-- <div v-if="todaysStats" class="col-auto">
+            <q-btn
+              class="q-pr-xs"
+              rounded
+              push
+              dense
+              color="primary"
+              @click="approve('hr')"
+            >
+              تایید رئیس مدیریت نیرو انسانی
+              <q-space />
+              <q-spinner-pie class="q-ml-sm" v-if="approveHRPending" />
+              <span v-else>
+                <q-icon
+                  class="q-ml-sm"
+                  v-if="todaysStats.IsApprovedHR"
+                  name="done_all"
+                />
+                <q-icon class="q-ml-sm" v-else name="circle" />
+              </span>
+              <q-tooltip anchor="center right"
+              self="center end" v-if="todaysStats.IsApprovedHR">
+                <q-icon name="account" />
+                {{ todaysStats.IsApprovedHR }}
+              </q-tooltip>
+            </q-btn>
+          </div> -->
+          <div v-if="todaysStats" class="col-auto q-gutter-sm q-ml-sm">
+            <q-btn
+              rounded
+              push
+              dense
+              :color="roles['operator'].color"
+              class="row q-pr-xs"
+              style="width: 100%"
+              @click="approve('operator')"
+            >
+              تایید متصدی آمار قسمت
+              <q-space />
+              <q-spinner-pie class="q-ml-sm" v-if="approveOperatorPending" />
+              <span v-else>
+                <q-icon v-if="todaysStats.IsApprovedOperator" name="done_all" />
+                <q-icon v-else name="circle" />
+              </span>
+              <q-tooltip
+                anchor="center right"
+                self="center end"
+                v-if="todaysStats.IsApprovedOperator"
+              >
+                <q-icon name="account" />
+                {{ todaysStats.IsApprovedOperator }}
+              </q-tooltip>
+            </q-btn>
+            <q-btn
+              rounded
+              push
+              dense
+              :color="roles['admin_head'].color"
+              class="row q-pr-xs"
+              style="width: 100%"
+              @click="approve('admin')"
+            >
+              تایید رئیس اداری قسمت
+              <q-space />
+              <q-spinner-pie class="q-ml-sm" v-if="approveAdminPending" />
+              <span v-else>
+                <q-icon v-if="todaysStats.IsApprovedAdmin" name="done_all" />
+                <q-icon v-else name="circle" />
+              </span>
+              <q-tooltip
+                anchor="center right"
+                self="center end"
+                v-if="todaysStats.IsApprovedAdmin"
+              >
+                <q-icon name="account" />
+                {{ todaysStats.IsApprovedAdmin }}
+              </q-tooltip>
+            </q-btn>
+            <q-btn
+              rounded
+              push
+              dense
+              :color="roles['head'].color"
+              class="row q-pr-xs"
+              style="width: 100%"
+              @click="approve('head')"
+            >
+              تایید رئیس قسمت
+              <q-space />
+              <q-spinner-pie class="q-ml-sm" v-if="approveHeadPending" />
+              <span v-else>
+                <q-icon v-if="todaysStats.IsApprovedHead" name="done_all" />
+                <q-icon v-else name="circle" />
+              </span>
+              <q-tooltip v-if="todaysStats.IsApprovedHead">
+                <q-icon name="account" />
+                {{ todaysStats.IsApprovedHead }}
+              </q-tooltip>
+            </q-btn>
+          </div>
+        </div>
       </q-card-actions>
     </q-card>
 
@@ -176,7 +308,7 @@
         <div class="col-2 q-py-xs text-grey-4 bg-grey-4 rounded-borders">_</div>
         <div class="col-3 q-py-xs text-grey-4 bg-grey-4 rounded-borders">_</div>
       </div>
-      <div class="row q-mt-xl justify-center q-gutter-sm">
+      <div class="row q-mt-lg justify-center q-gutter-sm">
         <div class="col-2 q-py-sm text-grey-4 bg-grey-4 rounded-borders">_</div>
         <div class="col-9 q-py-sm text-grey-4 bg-grey-4 rounded-borders">_</div>
       </div>
@@ -215,14 +347,13 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-    {{ todaysStats }}
   </q-page>
 </template>
 
 <script>
-import { computed, ref, onBeforeMount, watch, toRefs } from "vue";
+import { computed, ref, onBeforeMount, watch } from "vue";
 import { useStore } from "vuex";
-import { roles, ranks, statuses } from "src/store/variables";
+import { roles, ranks, statuses, statsMeta } from "src/store/variables";
 import { useQuasar } from "quasar";
 
 const columns = [
@@ -275,7 +406,6 @@ const columns = [
     label: "وضعیت",
     align: "left",
     field: "State",
-    sortable: true,
   },
 ];
 
@@ -285,14 +415,17 @@ export default {
     const user = computed(() => store.state.user.data);
     const $q = useQuasar();
 
+    const offsToggle = ref("all");
+    let isSearchDisabled = ref(false);
+
     const weekDayNames = [
-      "شنبه",
       "یک شنبه",
       "دو شنبه",
       "سه شنبه",
       "چهارشنبه",
       "پنج شنبه",
       "جمعه",
+      "شنبه",
     ];
 
     const today = ref(
@@ -302,7 +435,7 @@ export default {
         day: "numeric",
       })
     );
-    const weekDay = ref(weekDayNames[new Date(Date.now()).getDay() + 1]);
+    const weekDay = ref(weekDayNames[new Date(Date.now()).getDay()]);
 
     let personnelStatus = ref({});
     let statusOptions = ref([]);
@@ -314,6 +447,23 @@ export default {
     const departments = computed(() => store.getters["user/getDepartments"]);
     const registerPending = computed(() => store.state.stats.registerPending);
     const todaysStats = computed(() => store.state.stats.todaysStats);
+    const todaysOffs = computed(() => store.state.stats.todaysOffs);
+    const todaysStatsPending = computed(
+      () => store.state.stats.todaysStatsPending
+    );
+    const peopleFetchPending = computed(
+      () => store.state.people.peopleFetchPending
+    );
+    const approveHRPending = computed(() => store.state.stats.approveHRPending);
+    const approveOperatorPending = computed(
+      () => store.state.stats.approveOperatorPending
+    );
+    const approveAdminPending = computed(
+      () => store.state.stats.approveAdminPending
+    );
+    const approveHeadPending = computed(
+      () => store.state.stats.approveHeadPending
+    );
 
     const isHazer = (perNo) =>
       personnelStatus.value[perNo] &&
@@ -322,11 +472,11 @@ export default {
       personnelStatus.value[perNo] &&
       personnelStatus.value[perNo]["value"] === "Ghayeb";
 
-    const selectAuthedDepartment = (selection) => {
+    const selectAuthedDepartment = async (selection) => {
       selectedAuthedDepartment.value = selection;
       authedDepartmentsSelectToggle.value = false;
+      await fetchTodaysStatsIfAlreadySet();
       fetchPeople();
-      fetchTodaysStatsIfAlreadySet();
     };
 
     let peopleSearchText = ref(null);
@@ -353,10 +503,10 @@ export default {
       fetchTodaysStatsIfAlreadySet();
     });
 
-    const fetchTodaysStatsIfAlreadySet = () => {
+    const fetchTodaysStatsIfAlreadySet = async () => {
       if (!selectedAuthedDepartment.value) return;
-      store
-        .dispatch("stats/fetchAlreadySetStats", {
+      await store
+        .dispatch("stats/fetchTodaysStatsIfSet", {
           department: selectedAuthedDepartment.value["value"],
         })
         .then(({ status, message }) => {
@@ -376,6 +526,7 @@ export default {
         .dispatch("people/fetchPeople", {
           searchText: peopleSearchText.value,
           departments: selectedAuthedDepartment.value["value"],
+          noOffs: !todaysStats.value ? true : false,
         })
         .then(({ status, message }) => {
           if (status === "error") {
@@ -388,12 +539,64 @@ export default {
         });
     };
 
+    const approve = (role) => {
+      store
+        .dispatch("stats/approveStats", {
+          dep: selectedAuthedDepartment.value["value"],
+          role,
+        })
+        .then(({ status, message }) => {
+          if (status === "error") {
+            $q.notify({
+              color: "red-5",
+              icon: "warning",
+              message: message,
+            });
+          } else if (status === "success") {
+            $q.notify({
+              color: "green-4",
+              icon: "cloud_done",
+              message: message,
+            });
+            fetchTodaysStatsIfAlreadySet();
+          }
+        });
+    };
+
+    // Watchers
     watch(peopleSearchText, (value) => {
       fetchPeople();
     });
 
     watch(todaysStats, (value) => {
-      console.log("samoaleikom");
+      if (todaysStats.value) {
+        Object.entries(todaysStats.value).reduce((r, [key, value]) => {
+          // check if key(vaziat(status)) is in the variables.js -> statuses
+          if (
+            Object.keys(statuses).indexOf(key) > -1 &&
+            value &&
+            value.length > 0
+          ) {
+            // parse perNos of people with status(vaziat) of 'key'
+            const array = value.split(",");
+            array.forEach((loopPerNo) => {
+              personnelStatus.value[loopPerNo] = {
+                value: key,
+                label: statuses[key],
+              };
+            });
+          }
+        }, []);
+      }
+    });
+
+    watch(offsToggle, (value) => {
+      // isSearchDisabled.value = value === "offs" ? true : false;
+      if (value === "offs") {
+        isSearchDisabled.value = true;
+      } else {
+        isSearchDisabled.value = false;
+      }
     });
 
     watch(rows, (value) => {
@@ -408,6 +611,8 @@ export default {
     });
 
     return {
+      offsToggle,
+      isSearchDisabled,
       user,
       today,
       weekDay,
@@ -419,8 +624,13 @@ export default {
       ranks,
       personnelStatus,
       statusOptions,
+      statsMeta,
       registerPending,
+      todaysStatsPending,
+      peopleFetchPending,
+      approve,
       todaysStats,
+      todaysOffs,
       visibleColumns: ref([
         "Name",
         "Family",
@@ -435,14 +645,13 @@ export default {
       fetchPeople,
       isHazer,
       isGhayeb,
-      onStatsRegister() {
-        // console.log(personnelStatus.value);
+      async onStatsRegister() {
         store
           .dispatch("stats/register", {
             stats: personnelStatus.value,
             department: selectedAuthedDepartment.value["value"],
           })
-          .then(({ status, message, delay }) => {
+          .then(async ({ status, message, delay }) => {
             if (status === "error") {
               $q.notify({
                 color: "red-5",
@@ -462,6 +671,9 @@ export default {
                   icon: "cloud_done",
                   message: message,
                 });
+
+              await fetchTodaysStatsIfAlreadySet();
+              fetchPeople();
             }
           });
       },
