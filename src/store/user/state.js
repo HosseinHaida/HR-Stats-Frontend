@@ -7,5 +7,7 @@ export default function () {
     t: null,
     departments: null,
     profilePhotoUploadPending: false,
+    signaturePhotoUploadPending: false,
+    passwordUpdatePending: false,
   };
 }

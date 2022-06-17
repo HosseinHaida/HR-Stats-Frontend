@@ -7,6 +7,20 @@ export const militaryBaseName = "Shahid_Khazraii";
 // bg-primary
 export const militaryBaseNameFa = "مرکز آموزش شهید خضرایی";
 
+export const offTypes = {
+  s: "سالیانه",
+  t: "تشویقی",
+  a: "اشعه",
+  j: "صعب العلاج",
+};
+
+export const offDaysTypes = [
+  { label: "سالیانه", value: "s" },
+  { label: "تشویقی", value: "t" },
+  { label: "اشعه", value: "a" },
+  { label: "صعب العلاج", value: "j" },
+];
+
 export const roles = {
   can_do_all: {
     label: "ادمین",
@@ -277,11 +291,6 @@ export const ranks = {
   823: "استوار",
   824: "ستوان ",
 };
-
-export const offDaysTypes = [
-  { label: "سالیانه", value: "s" },
-  { label: "تشویقی", value: "t" },
-];
 
 export const maddeHa = {
   1: { name: "تشویقات", number: 1, table: "Tashvighat" },

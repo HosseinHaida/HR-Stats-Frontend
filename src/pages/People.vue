@@ -35,9 +35,8 @@
           <q-td key="PerNo" :props="props">
             {{ props.row.PerNo }}
           </q-td>
-          <q-td key="Department" :props="props">
+          <q-td key="Shobe" :props="props">
             <span
-              v-if="departments"
               class="q-px-sm q-py-xs rounded-borders text-secondary border-positive"
             >
               <q-icon
@@ -46,44 +45,84 @@
                 size="11px"
                 style="margin-top: -2px"
               />
-              {{ departments[props.row.Department] }}
+
+              {{ props.row.Shobe ? props.row.Shobe : "نامشخص" }}
             </span>
-            <q-popup-edit
-              @hide="onDepartmentPopupHide"
-              v-model="props.row.Department"
-            >
-              <q-select
-                filled
-                v-model="editedPersonDepartment"
-                use-input
-                label="تغییر قسمت"
+            <q-popup-edit @hide="onShobePopupHide" v-model="props.row.Shobe">
+              <q-input
+                v-model="editedPersonShobe"
                 dense
-                input-debounce="0"
                 style="width: 320px"
-                :options="departmentOptions"
                 clearable
-                @filter="filterDepartments"
-              >
-                <template v-slot:no-option>
-                  <q-item>
-                    <q-item-section class="text-grey">
-                      قسمت یافت نشد
-                    </q-item-section>
-                  </q-item>
-                </template>
-              </q-select>
+                label="تغییر شعبه"
+              />
               <q-btn
                 icon="save"
                 dense
-                :disable="!editedPersonDepartment"
+                :disable="!editedPersonShobe"
                 color="secondary"
                 class="q-mt-xs q-px-sm"
-                :loading="personDepartmentChangePending"
-                @click="onPersonDepartmentChange"
+                :loading="personShobeChangePending"
+                @click="onPersonShobeChange"
               >
-                <q-tooltip delay="400"> ذخیره </q-tooltip>
+                <q-tooltip :delay="400"> ذخیره </q-tooltip>
               </q-btn>
             </q-popup-edit>
+          </q-td>
+          <q-td key="Department" :props="props">
+            <span v-if="user && user.Department !== '23'">
+              {{ departments[props.row.Department] }}
+            </span>
+            <span v-else>
+              <span
+                v-if="departments"
+                class="q-px-sm q-py-xs rounded-borders text-secondary border-positive"
+              >
+                <q-icon
+                  name="edit"
+                  color="secondary"
+                  size="11px"
+                  style="margin-top: -2px"
+                />
+                {{ departments[props.row.Department] }}
+              </span>
+              <q-popup-edit
+                @hide="onDepartmentPopupHide"
+                v-model="props.row.Department"
+              >
+                <q-select
+                  filled
+                  v-model="editedPersonDepartment"
+                  use-input
+                  label="تغییر قسمت"
+                  dense
+                  input-debounce="0"
+                  style="width: 320px"
+                  :options="departmentOptions"
+                  clearable
+                  @filter="filterDepartments"
+                >
+                  <template v-slot:no-option>
+                    <q-item>
+                      <q-item-section class="text-grey">
+                        قسمت یافت نشد
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
+                <q-btn
+                  icon="save"
+                  dense
+                  :disable="!editedPersonDepartment"
+                  color="secondary"
+                  class="q-mt-xs q-px-sm"
+                  :loading="personDepartmentChangePending"
+                  @click="onPersonDepartmentChange"
+                >
+                  <q-tooltip :delay="400"> ذخیره </q-tooltip>
+                </q-btn>
+              </q-popup-edit>
+            </span>
           </q-td>
           <q-td key="IsSoldier" :props="props">
             {{ props.row.IsSoldier === "1" ? "وظیفه" : "پایور" }}
@@ -274,6 +313,13 @@ export default {
         sortable: true,
       },
       {
+        name: "Shobe",
+        label: "شعبه",
+        align: "left",
+        field: "Shobe",
+        sortable: true,
+      },
+      {
         name: "Department",
         label: "قسمت",
         align: "left",
@@ -345,9 +391,13 @@ export default {
     const personDepartmentChangePending = computed(
       () => store.state.people.personDepartmentChangePending
     );
+    const personShobeChangePending = computed(
+      () => store.state.people.personShobeChangePending
+    );
 
     let departmentOptions = ref([]);
     let editedPersonDepartment = ref(null);
+    let editedPersonShobe = ref(null);
 
     let selection = ref([]);
 
@@ -357,6 +407,7 @@ export default {
         "Family",
         "PerNo",
         "Rank",
+        "Shobe",
         "Department",
         "IsSoldier",
       ]),
@@ -367,11 +418,13 @@ export default {
       selectedDepartments,
       departmentOptions,
       editedPersonDepartment,
+      editedPersonShobe,
       departments,
       selection,
 
       excelUploadPending,
       personDepartmentChangePending,
+      personShobeChangePending,
 
       ranks,
       user,
@@ -404,6 +457,13 @@ export default {
         }
       },
 
+      onShobePopupHide() {
+        if (editedPersonShobe.value || selection.value) {
+          editedPersonShobe.value = null;
+          selection.value = [];
+        }
+      },
+
       async onPersonDepartmentChange() {
         if (
           !selection.value ||
@@ -419,6 +479,42 @@ export default {
         await store
           .dispatch("people/changeDepartment", {
             department: editedPersonDepartment.value,
+            perNo: selection.value[0]["PerNo"],
+          })
+          .then(({ status, message }) => {
+            if (status === "error") {
+              $q.notify({
+                color: "red-5",
+                icon: "warning",
+                message: message,
+              });
+            } else if (status === "success") {
+              $q.notify({
+                color: "green-4",
+                icon: "cloud_done",
+                message: message,
+              });
+              fetchPeople();
+            }
+          });
+      },
+
+      async onPersonShobeChange() {
+        if (
+          !selection.value ||
+          !selection.value ||
+          !selection.value[0] ||
+          !selection.value[0]["PerNo"]
+        )
+          return $q.notify({
+            color: "red-5",
+            icon: "warning",
+            message: "لطفا ابتدا یک نفر را انتخاب کنید",
+          });
+
+        await store
+          .dispatch("people/changeShobe", {
+            shobe: editedPersonShobe.value,
             perNo: selection.value[0]["PerNo"],
           })
           .then(({ status, message }) => {

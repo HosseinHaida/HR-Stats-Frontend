@@ -10,7 +10,12 @@ export const messages = {
   authDeletedSuccessfully: "حذف نقش موفقیت آمیز",
   statRegistered: "آمار روزانه با موفقیت ثبت و در انتظار تایید",
   personDepSetSuccess: "قسمت کارمند/وظیفه تغییر یافت",
+  personShobeSetSuccess: "شعبه کارمند/وظیفه تغییر یافت",
   daysOffFetchSuccessful: "لیست مرخصی‌ها واکشی شد",
   profilePhotoUploadSuccess: "تصویر پروفایل با موفقیت بارگذاری شد",
   approved: "با موفقیت تایید شد",
+  missionAdded: "ماموریت با موفقیت ثبت شد",
+  agentSaved: "ماموربا موفقیت ثبت شد",
+  passwordUpdateSuccess: "رمز عبور با موفقیت به روز رسانی شد",
+  signaturePhotoUploadSuccess: "خط امضا با موفقیت بارگذاری شد",
 };

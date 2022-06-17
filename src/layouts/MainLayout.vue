@@ -81,6 +81,9 @@
                                   clickable
                                 >
                                   <q-item-section> ثبت </q-item-section>
+                                  <q-item-section side>
+                                    <q-icon name="add" />
+                                  </q-item-section>
                                 </q-item>
                                 <q-item
                                   to="/stats/daysoff/list"
@@ -89,6 +92,9 @@
                                   clickable
                                 >
                                   <q-item-section> نمایش </q-item-section>
+                                  <q-item-section side>
+                                    <q-icon name="visibility" />
+                                  </q-item-section>
                                 </q-item>
                               </q-list>
                             </q-menu>
@@ -170,10 +176,39 @@
         <!-- button for the stats routes -->
         <div class="col-auto q-mt-sm">
           <q-btn color="primary" flat icon="table_chart">
-            <q-menu anchor="center right" self="center end">
+            <q-menu anchor="top right" self="top end">
               <q-list separator dense style="min-width: 100px">
                 <q-item to="/stats/register" clickable v-close-popup>
                   <q-item-section> آمار روزانه </q-item-section>
+                </q-item>
+                <q-item clickable>
+                  <q-item-section> ثبت وضعیت </q-item-section>
+                  <q-item-section side>
+                    <q-icon name="keyboard_arrow_left" />
+                  </q-item-section>
+
+                  <q-menu anchor="top right" self="top end">
+                    <q-list style="min-width: 150px">
+                      <q-item to="/stats/missions" dense clickable>
+                        <q-item-section> ماموریت </q-item-section>
+                        <q-item-section side>
+                          <q-icon name="airplane_ticket" />
+                        </q-item-section>
+                      </q-item>
+                      <q-item to="/stats/agents" dense clickable>
+                        <q-item-section> مامور </q-item-section>
+                        <q-item-section side>
+                          <q-icon name="output" />
+                        </q-item-section>
+                      </q-item>
+                      <!-- <q-item to="/stats/agents/add/internal" dense clickable>
+                        <q-item-section> مامور نزدیک </q-item-section>
+                        <q-item-section side>
+                          <q-icon name="alt_route" />
+                        </q-item-section>
+                      </q-item> -->
+                    </q-list>
+                  </q-menu>
                 </q-item>
                 <q-item to="/stats/query" clickable v-close-popup>
                   <q-item-section> گزارش گیری </q-item-section>

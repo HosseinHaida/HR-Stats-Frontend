@@ -63,8 +63,8 @@
                 label="جستجو"
               />
               <q-btn-toggle
-                v-if="todaysOffs"
                 class="col-auto q-ml-md"
+                v-if="todaysOffs"
                 v-model="offsToggle"
                 color="white"
                 toggle-color="primary"
@@ -232,7 +232,7 @@
               :color="roles['operator'].color"
               class="row q-pr-xs"
               style="width: 100%"
-              @click="approve('operator')"
+              @click="approve('operator', 'Operator')"
             >
               تایید متصدی آمار قسمت
               <q-space />
@@ -242,6 +242,7 @@
                 <q-icon v-else name="circle" />
               </span>
               <q-tooltip
+                class="approve-tooltip"
                 anchor="center right"
                 self="center end"
                 v-if="todaysStats.IsApprovedOperator"
@@ -257,7 +258,7 @@
               :color="roles['admin_head'].color"
               class="row q-pr-xs"
               style="width: 100%"
-              @click="approve('admin')"
+              @click="approve('admin', 'Admin')"
             >
               تایید رئیس اداری قسمت
               <q-space />
@@ -267,6 +268,7 @@
                 <q-icon v-else name="circle" />
               </span>
               <q-tooltip
+                class="approve-tooltip"
                 anchor="center right"
                 self="center end"
                 v-if="todaysStats.IsApprovedAdmin"
@@ -282,7 +284,7 @@
               :color="roles['head'].color"
               class="row q-pr-xs"
               style="width: 100%"
-              @click="approve('head')"
+              @click="approve('head', 'Head')"
             >
               تایید رئیس قسمت
               <q-space />
@@ -291,7 +293,12 @@
                 <q-icon v-if="todaysStats.IsApprovedHead" name="done_all" />
                 <q-icon v-else name="circle" />
               </span>
-              <q-tooltip v-if="todaysStats.IsApprovedHead">
+              <q-tooltip
+                class="approve-tooltip"
+                anchor="center right"
+                self="center end"
+                v-if="todaysStats.IsApprovedHead"
+              >
                 <q-icon name="account" />
                 {{ todaysStats.IsApprovedHead }}
               </q-tooltip>
@@ -454,7 +461,7 @@ export default {
     const peopleFetchPending = computed(
       () => store.state.people.peopleFetchPending
     );
-    const approveHRPending = computed(() => store.state.stats.approveHRPending);
+    // const approveHRPending = computed(() => store.state.stats.approveHRPending);
     const approveOperatorPending = computed(
       () => store.state.stats.approveOperatorPending
     );
@@ -526,7 +533,7 @@ export default {
         .dispatch("people/fetchPeople", {
           searchText: peopleSearchText.value,
           departments: selectedAuthedDepartment.value["value"],
-          noOffs: !todaysStats.value ? true : false,
+          noOffs: todaysStats.value ? false : true,
         })
         .then(({ status, message }) => {
           if (status === "error") {
@@ -539,11 +546,12 @@ export default {
         });
     };
 
-    const approve = (role) => {
+    const approve = (role, pFix) => {
       store
         .dispatch("stats/approveStats", {
           dep: selectedAuthedDepartment.value["value"],
           role,
+          pFix,
         })
         .then(({ status, message }) => {
           if (status === "error") {
@@ -628,6 +636,9 @@ export default {
       registerPending,
       todaysStatsPending,
       peopleFetchPending,
+      approveOperatorPending,
+      approveAdminPending,
+      approveHeadPending,
       approve,
       todaysStats,
       todaysOffs,

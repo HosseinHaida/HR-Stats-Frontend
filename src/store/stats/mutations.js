@@ -41,3 +41,27 @@ export function setApproveAdminPending(state, status) {
 export function setApproveHeadPending(state, status) {
   state.approveHeadPending = status;
 }
+
+export function setMissionAddPending(state, status) {
+  state.missionAddPending = status;
+}
+
+export function setAgentAddPending(state, status) {
+  state.agentAddPending = status;
+}
+
+export function setMissionsList(state, records) {
+  state.missionsList = records;
+}
+
+export function setAgentsList(state, records) {
+  state.agentsList = records;
+}
+
+export function setFetchMissionsPending(state, status) {
+  state.fetchMissionsPending = status;
+}
+
+export function setFetchAgentsPending(state, status) {
+  state.fetchMissionsPending = status;
+}

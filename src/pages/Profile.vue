@@ -59,11 +59,43 @@
               size="150px"
             >
               <q-img :ratio="1" :src="user.Signature" />
-              <span class="user-photo-placeholder"> امضا </span>
+              <span class="user-photo-placeholder" v-if="!user.Signature">
+                امضا
+              </span>
             </q-avatar>
-            <q-btn color="primary" class="q-ml-md self-end">
-              <q-icon class="q-ml-xs" name="draw" />
-            </q-btn>
+            <q-file
+              class="ellipsis self-end"
+              dense
+              v-model="signaturePhoto"
+              accept="image/*"
+              label="انتخاب تصویر"
+              :borderless="!!signaturePhoto"
+              :filled="!signaturePhoto"
+              style="max-width: 235px"
+            >
+              <template v-slot:append>
+                <q-icon
+                  v-if="!signaturePhoto"
+                  name="draw"
+                  class="cursor-pointer"
+                />
+              </template>
+
+              <template v-slot:prepend>
+                <q-btn
+                  v-if="signaturePhoto"
+                  class="q-mr-sm"
+                  color="positive"
+                  push
+                  dense
+                  icon="upload"
+                  @click="uploadSignature()"
+                  :loading="signaturePhotoUploadPending"
+                >
+                  <q-tooltip>آپلود فایل انتخابی</q-tooltip>
+                </q-btn>
+              </template>
+            </q-file>
           </div>
         </q-card>
       </div>
@@ -83,28 +115,47 @@
       </div>
     </div>
     <div class="row q-mt-md">
-      <div class="col-12">
+      <q-form @submit="savePassword" class="col-12">
         <q-card class="q-px-md q-pb-md" flat bordered>
           <q-card-section>
             <div class="text-h6">ویرایش رمز عبور</div>
           </q-card-section>
           <div class="row">
             <div class="col-6 q-pr-sm">
-              <q-input filled label="رمز عبور قبلی"></q-input>
+              <q-input
+                type="password"
+                v-model="oldPass"
+                filled
+                label="رمز عبور قبلی"
+              />
             </div>
             <div class="col-6 q-pl-sm">
-              <q-input filled label="رمز عبور جدید"> </q-input>
+              <q-input
+                type="password"
+                v-model="newPass"
+                filled
+                label="رمز عبور جدید"
+              />
             </div>
           </div>
 
           <q-card-actions class="q-mt-sm">
-            <q-btn flat color="positive">
+            <q-btn
+              :loading="passwordUpdatePending"
+              type="submit"
+              flat
+              color="positive"
+            >
               <q-icon class="q-mr-sm" name="save" />
               ذخیره رمز عبور
+
+              <template v-slot:loading>
+                <q-spinner-facebook />
+              </template>
             </q-btn>
           </q-card-actions>
         </q-card>
-      </div>
+      </q-form>
     </div>
   </q-page>
 </template>
@@ -123,9 +174,19 @@ export default {
     const $q = useQuasar();
 
     const profilePhoto = ref(null);
+    const signaturePhoto = ref(null);
+    const oldPass = ref(null);
+    const newPass = ref(null);
+
+    const passwordUpdatePending = computed(
+      () => store.state.user.passwordUpdatePending
+    );
     const user = computed(() => store.state.user.data);
     const profilePhotoUploadPending = computed(
       () => store.state.user.profilePhotoUploadPending
+    );
+    const signaturePhotoUploadPending = computed(
+      () => store.state.user.signaturePhotoUploadPending
     );
     const row = computed(() => {
       const array = [];
@@ -241,6 +302,61 @@ export default {
         });
     };
 
+    const uploadSignature = () => {
+      if (!signaturePhoto.value) return;
+      const formData = new FormData();
+      formData.append("photo", signaturePhoto.value);
+      store
+        .dispatch("user/uploadSignature", formData)
+        .then(({ status, message }) => {
+          if (status === "error") {
+            $q.notify({
+              color: "red-5",
+              icon: "warning",
+              message: message,
+            });
+          } else if (status === "success") {
+            $q.notify({
+              color: "green-4",
+              icon: "cloud_done",
+              message: message,
+            });
+
+            store.dispatch("user/fetchUserData").then(() => {
+              signaturePhoto.value = null;
+            });
+          }
+        });
+    };
+
+    const savePassword = () => {
+      store
+        .dispatch("user/savePassword", {
+          oldPass: oldPass.value,
+          newPass: newPass.value,
+        })
+        .then(({ status, message }) => {
+          if (status === "error") {
+            $q.notify({
+              color: "red-5",
+              icon: "warning",
+              message: message,
+            });
+          } else if (status === "success") {
+            $q.notify({
+              color: "green-4",
+              icon: "cloud_done",
+              message: message,
+            });
+            oldPass.value = null;
+            newPass.value = null;
+            store.dispatch("user/fetchUserData").then(() => {
+              profilePhoto.value = null;
+            });
+          }
+        });
+    };
+
     return {
       user,
       row,
@@ -248,8 +364,15 @@ export default {
       departments,
       ranks,
       profilePhoto,
+      signaturePhoto,
       uploadProfilePhoto,
+      uploadSignature,
+      oldPass,
+      newPass,
+      savePassword,
       profilePhotoUploadPending,
+      signaturePhotoUploadPending,
+      passwordUpdatePending,
     };
   },
 };

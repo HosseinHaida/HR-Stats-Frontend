@@ -22,6 +22,10 @@ export function setPersonDepartmentChangePending(state, status) {
   state.personDepartmentChangePending = status;
 }
 
+export function setPersonShobeChangePending(state, status) {
+  state.personShobeChangePending = status;
+}
+
 export function setFindingPersonPending(state, status) {
   state.findingPersonPending = status;
 }

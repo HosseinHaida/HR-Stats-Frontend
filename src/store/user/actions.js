@@ -120,3 +120,75 @@ export async function uploadProfilePhoto({ state, commit, rootState }, photo) {
       }
     );
 }
+
+export async function uploadSignature({ state, commit, rootState }, photo) {
+  commit("setSignaturePhotoUploadPending", true);
+  return await axios
+    .post(`${apiUrl}/auth/upload/signature`, photo, {
+      headers: {
+        token: rootState.user.t,
+      },
+    })
+    .then(
+      (res) => {
+        // commit("updateUserPhoto", res.data.photo_path);
+        commit("setSignaturePhotoUploadPending", false);
+        return {
+          status: "success",
+          message: messages.signaturePhotoUploadSuccess,
+        };
+      },
+      (error) => {
+        commit("setSignaturePhotoUploadPending", false);
+        if (!error.response) {
+          return {
+            status: "error",
+            message: messages.noConnection,
+          };
+        }
+        return {
+          status: "error",
+          message: error.response.data.error,
+        };
+      }
+    );
+}
+
+export async function savePassword(
+  { state, commit, rootState },
+  { oldPass, newPass }
+) {
+  commit("setPasswordUpdatePending", true);
+  return await axios
+    .post(
+      `${apiUrl}/auth/update/password`,
+      { oldPass, newPass },
+      {
+        headers: {
+          token: rootState.user.t,
+        },
+      }
+    )
+    .then(
+      (res) => {
+        commit("setPasswordUpdatePending", false);
+        return {
+          status: "success",
+          message: messages.passwordUpdateSuccess,
+        };
+      },
+      (error) => {
+        commit("setPasswordUpdatePending", false);
+        if (!error.response) {
+          return {
+            status: "error",
+            message: messages.noConnection,
+          };
+        }
+        return {
+          status: "error",
+          message: error.response.data.error,
+        };
+      }
+    );
+}

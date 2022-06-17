@@ -85,6 +85,44 @@ export async function changeDepartment(
     );
 }
 
+export async function changeShobe({ rootState, commit }, { shobe, perNo }) {
+  commit("setPersonShobeChangePending", true);
+  const url = `${apiUrl}/people/change_shobe`;
+  return await axios
+    .post(
+      url,
+      { shobe, perNo },
+      {
+        headers: {
+          token: rootState.user.t,
+        },
+      }
+    )
+    .then(
+      (res) => {
+        commit("setPersonShobeChangePending", false);
+        commit("setPeopleList", res.data.people);
+        return {
+          status: "success",
+          message: messages.personShobeSetSuccess,
+        };
+      },
+      (error) => {
+        commit("setPersonShobeChangePending", false);
+        if (!error.response) {
+          return {
+            status: "error",
+            message: messages.noConnection,
+          };
+        }
+        return {
+          status: "error",
+          message: error.response.data.error,
+        };
+      }
+    );
+}
+
 export async function uploadExcel({ state, commit, rootState }, excel) {
   commit("setExcelUploadPending", true);
   return await axios

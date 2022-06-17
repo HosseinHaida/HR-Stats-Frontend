@@ -6,6 +6,7 @@ export default function () {
     total: { pages: 1, count: 0 },
     insertPending: false,
     personDepartmentChangePending: false,
+    personShobeChangePending: false,
     findingPersonPending: false,
   };
 }

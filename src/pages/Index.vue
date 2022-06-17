@@ -9,7 +9,6 @@
     >
       <q-carousel-slide :name="1" img-src="~assets/1.jpg" />
       <q-carousel-slide :name="2" img-src="~assets/2.jpg" />
-      <q-carousel-slide :name="4" img-src="~assets/4.jpg" />
     </q-carousel>
   </q-page>
 </template>

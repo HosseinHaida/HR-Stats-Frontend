@@ -2,14 +2,14 @@
   <q-page class="q-pa-md">
     <q-table
       v-if="rows"
-      title="مرخصی‌ها"
+      title="مامورها"
       :rows="rows"
       :columns="columns"
       row-key="id"
       :visible-columns="visibleColumns"
       table-header-class="bg-grey-2"
+      :loading="fetchAgentsPending"
       :pagination="initialPagination"
-      :loading="daysOffFetchPending"
     >
       <template v-slot:body="props">
         <q-tr :props="props" class="cursor-pointer">
@@ -25,66 +25,40 @@
           <q-td key="PerNo" :props="props">
             {{ props.row.PerNo }}
           </q-td>
-          <q-td key="type" :props="props">
-            {{ offTypes[props.row.type] }}
-          </q-td>
-          <q-td key="off_from" :props="props">
+          <q-td key="start_date" :props="props">
             {{
-              props.row.off_from.substring(props.row.off_from.indexOf("T"), 0)
+              props.row.start_date.substring(
+                props.row.start_date.indexOf("T"),
+                0
+              )
             }}
           </q-td>
-          <q-td key="off_to" :props="props">
-            {{ props.row.off_to.substring(props.row.off_to.indexOf("T"), 0) }}
+          <q-td key="end_date" :props="props">
+            {{
+              props.row.has_end === "0"
+                ? "ندارد"
+                : props.row.end_date.substring(
+                    props.row.end_date.indexOf("T"),
+                    0
+                  )
+            }}
           </q-td>
           <q-td key="duration" :props="props">
-            {{ props.row.duration }}
+            {{ props.row.has_end === "0" ? "نا معلوم" : props.row.duration }}
           </q-td>
-          <q-td key="loc" :props="props">
-            {{ props.row.loc }}
+          <q-td key="location" :props="props">
+            {{ props.row.location }}
           </q-td>
-          <q-td key="isApprovedByAdmin" :props="props">
-            <q-btn
-              class="q-px-sm"
-              v-if="
-                canConfirmAdmin(props.row.Department) &&
-                (props.row.isApprovedByAdmin === '0' ||
-                  !props.row.isApprovedByAdmin)
-              "
-              dense
-              :color="roles['admin_head'].color"
-              label="تأیید"
-              @click="onApprove(props.row.id, 'admin', props.row.Department)"
-            />
-            <span
-              v-if="
-                !canConfirmAdmin(props.row.Department) &&
-                (props.row.isApprovedByAdmin === '0' ||
-                  !props.row.isApprovedByAdmin)
-              "
-            >
-              در انتظار تأیید...
-            </span>
-            <q-icon
-              v-if="
-                props.row.isApprovedByAdmin &&
-                props.row.isApprovedByAdmin !== '0'
-              "
-              name="check"
-              :color="roles['admin_head'].color"
-              size="sm"
-            >
-              <q-tooltip class="approve-tooltip">
-                {{ props.row.isApprovedByAdmin }}
-              </q-tooltip>
-            </q-icon>
+          <q-td key="is_external" :props="props">
+            {{ props.row.is_external === "1" ? "دور" : "نزدیک" }}
           </q-td>
-          <q-td key="isApprovedByHead" :props="props">
+          <q-td key="is_approved_by_head" :props="props">
             <q-btn
               class="q-px-sm"
               v-if="
                 canConfirmHead(props.row.Department) &&
-                (props.row.isApprovedByHead === '0' ||
-                  !props.row.isApprovedByHead)
+                (props.row.is_approved_by_head === '0' ||
+                  !props.row.is_approved_by_head)
               "
               dense
               :color="roles['head'].color"
@@ -94,61 +68,28 @@
             <span
               v-if="
                 !canConfirmHead(props.row.Department) &&
-                (props.row.isApprovedByHead === '0' ||
-                  !props.row.isApprovedByHead)
+                (props.row.is_approved_by_head === '0' ||
+                  !props.row.is_approved_by_head)
               "
             >
               در انتظار تأیید...
             </span>
             <q-icon
               v-if="
-                props.row.isApprovedByHead && props.row.isApprovedByHead !== '0'
+                props.row.is_approved_by_head &&
+                props.row.is_approved_by_head !== '0'
               "
               name="check"
               :color="roles['head'].color"
               size="sm"
             >
               <q-tooltip class="approve-tooltip">
-                {{ props.row.isApprovedByHead }}
+                {{ props.row.is_approved_by_head }}
               </q-tooltip>
             </q-icon>
           </q-td>
-          <q-td key="isApprovedByHR" :props="props">
-            <q-btn
-              class="q-px-sm"
-              v-if="
-                canConfirmHR &&
-                (props.row.isApprovedByHR === '0' || !props.row.isApprovedByHR)
-              "
-              dense
-              color="primary"
-              label="تأیید"
-              @click="onApprove(props.row.id, 'hr', props.row.Department)"
-            />
-
-            <span
-              v-if="
-                !canConfirmHR &&
-                (props.row.isApprovedByHR === '0' || !props.row.isApprovedByHR)
-              "
-            >
-              در انتظار تأیید...
-            </span>
-            <q-icon
-              v-if="
-                props.row.isApprovedByHR && props.row.isApprovedByHR !== '0'
-              "
-              name="check"
-              color="primary"
-              size="sm"
-            >
-              <q-tooltip class="approve-tooltip">
-                {{ props.row.isApprovedByHR }}
-              </q-tooltip>
-            </q-icon>
-          </q-td>
-          <q-td key="creator" :props="props">
-            {{ props.row.creator }}
+          <q-td key="created_by" :props="props">
+            {{ props.row.created_by }}
           </q-td>
         </q-tr>
       </template>
@@ -178,7 +119,7 @@
         <q-input
           class="q-ml-md q-mr-sm col"
           filled
-          v-model="daysOffSearchText"
+          v-model="agentsSearchText"
           dense
           debounce="400"
           label="جستجو"
@@ -217,12 +158,24 @@
         <q-btn
           v-if="user && user.Department === '23'"
           outline
+          label="مامور نزدیک"
           class="q-ml-sm"
           color="primary"
-          to="/stats/daysoff"
+          to="/stats/agents/add/internal"
           icon="add"
         >
-          <q-tooltip>ثبت مرخصی</q-tooltip>
+          <q-tooltip>ثبت مامور نزدیک</q-tooltip>
+        </q-btn>
+        <q-btn
+          v-if="user && user.Department === '23'"
+          outline
+          label="مامور دور"
+          class="q-ml-sm"
+          color="primary"
+          to="/stats/agents/add/external"
+          icon="add"
+        >
+          <q-tooltip>ثبت مامور دور</q-tooltip>
         </q-btn>
       </template>
     </q-table>
@@ -241,7 +194,7 @@ export default {
     const store = useStore();
 
     let selectedDepartments = ref(null);
-    let daysOffSearchText = ref(null);
+    let agentsSearchText = ref(null);
 
     const columns = [
       {
@@ -275,94 +228,68 @@ export default {
         sortable: true,
       },
       {
-        name: "type",
-        label: "نوع مرخصی",
-        align: "left",
-        field: "type",
-        sortable: true,
-      },
-      {
-        name: "off_from",
+        name: "start_date",
         label: "شروع",
         align: "left",
-        field: "off_from",
+        field: "start_date",
         sortable: true,
       },
       {
-        name: "off_to",
+        name: "end_date",
         label: "پایان",
         align: "left",
-        field: "off_to",
+        field: "end_date",
         sortable: true,
       },
       {
         name: "duration",
-        label: "تعداد روز قابل شمارش",
+        label: "تعداد روز",
         align: "left",
         field: "duration",
         sortable: true,
       },
       {
-        name: "loc",
-        label: "مقصد",
+        name: "location",
+        label: "محل ماموریت",
         align: "left",
-        field: "loc",
+        field: "location",
         sortable: true,
       },
       {
-        name: "isApprovedByAdmin",
-        label: "تأیید اداری",
+        name: "is_external",
+        label: "نوع مامور",
         align: "left",
-        field: "isApprovedByAdmin",
+        field: "is_external",
         sortable: true,
       },
       {
-        name: "isApprovedByHead",
+        name: "is_approved_by_head",
         label: "تأیید رئیس",
         align: "left",
-        field: "isApprovedByHead",
+        field: "is_approved_by_head",
         sortable: true,
       },
+      // {
+      //   name: "isApprovedByHR",
+      //   label: "تأیید نیرو انسانی",
+      //   align: "left",
+      //   field: "isApprovedByHR",
+      //   sortable: true,
+      // },
       {
-        name: "isApprovedByHR",
-        label: "تأیید نیرو انسانی",
-        align: "left",
-        field: "isApprovedByHR",
-        sortable: true,
-      },
-      {
-        name: "creator",
+        name: "created_by",
         label: "ایجاد کننده",
         align: "left",
-        field: "creator",
+        field: "created_by",
         sortable: true,
       },
     ];
 
-    const daysOffFetchPending = computed(
-      () => store.state.stats.daysOffFetchPending
-    );
-
-    const daysOffList = computed(() => store.state.stats.daysOffList);
-    const rows = computed(() => store.state.stats.daysOffList);
+    const rows = computed(() => store.state.stats.agentsList);
     const user = computed(() => store.state.user.data);
-
-    const canConfirmHR = computed(() => {
-      return (
-        user.value &&
-        user.value.Department === "23" &&
-        user.value.permissions &&
-        user.value.permissions.authedDepartments &&
-        user.value.permissions.authedDepartments.findIndex((depRole) => {
-          return (
-            (depRole.role === "can_do_all" ||
-              depRole.role === "head" ||
-              depRole.role === "succ") &&
-            depRole.value === "23"
-          );
-        }) !== -1
-      );
-    });
+    const fetchAgentsPending = computed(
+      () => store.state.stats.fetchAgentsPending
+    );
 
     const canConfirmHead = (personDep) => {
       return (
@@ -381,28 +308,11 @@ export default {
       );
     };
 
-    const canConfirmAdmin = (personDep) => {
-      return (
-        user.value &&
-        user.value.Department === personDep &&
-        user.value.permissions &&
-        user.value.permissions.authedDepartments &&
-        user.value.permissions.authedDepartments.findIndex((depRole) => {
-          return (
-            (depRole.role === "can_do_all" ||
-              depRole.role === "admin_head" ||
-              depRole.role === "admin_succ") &&
-            depRole.value === personDep
-          );
-        }) !== -1
-      );
-    };
-
     onMounted(() => {
       fetchRecords();
     });
 
-    watch(daysOffSearchText, (value) => {
+    watch(agentsSearchText, (value) => {
       fetchRecords();
     });
 
@@ -418,8 +328,8 @@ export default {
         });
       }
       store
-        .dispatch("stats/fetchDaysOff", {
-          searchText: daysOffSearchText.value,
+        .dispatch("stats/fetchAgents", {
+          searchText: agentsSearchText.value,
           departments: selectedDepartments.value
             ? selectedDepartmentsIDs
             : null,
@@ -437,7 +347,7 @@ export default {
 
     const onApprove = (id, role, dep) => {
       store
-        .dispatch("stats/approveADayOff", {
+        .dispatch("stats/approveAgent", {
           id,
           role,
           dep,
@@ -461,23 +371,20 @@ export default {
     };
 
     onUnmounted(() => {
-      store.commit("stats/setDaysOffList", []);
+      store.commit("stats/setAgentsList", []);
     });
     return {
-      daysOffFetchPending,
       fetchRecords,
-      daysOffList,
       columns,
       rows,
       ranks,
       offTypes,
       roles,
       user,
+      fetchAgentsPending,
       selectedDepartments,
-      daysOffSearchText,
-      canConfirmHR,
+      agentsSearchText,
       canConfirmHead,
-      canConfirmAdmin,
       selection: ref([]),
       onApprove,
       visibleColumns: ref([
@@ -485,14 +392,13 @@ export default {
         "Acp_Name",
         "Acp_Fami",
         "PerNo",
-        "type",
-        "off_from",
-        "off_to",
+        "start_date",
+        "end_date",
         "duration",
-        "loc",
-        "isApprovedByAdmin",
-        "isApprovedByHead",
-        "isApprovedByHR",
+        "location",
+        "is_approved_by_head",
+        "is_external",
+        "has_end",
       ]),
       initialPagination: ref({
         sortBy: "desc",

@@ -44,3 +44,11 @@ export function setDepartmentsList(state, departments) {
 export function setProfilePhotoUploadPending(state, status) {
   state.profilePhotoUploadPending = status;
 }
+
+export function setSignaturePhotoUploadPending(state, status) {
+  state.signaturePhotoUploadPending = status;
+}
+
+export function setPasswordUpdatePending(state, status) {
+  state.passwordUpdatePending = status;
+}

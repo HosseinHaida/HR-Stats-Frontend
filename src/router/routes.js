@@ -27,11 +27,31 @@ const routes = [
       },
       {
         path: "stats/daysoff",
-        component: () => import("pages/StatsDaysOff.vue"),
+        component: () => import("src/pages/StatsDaysOffAdd.vue"),
       },
       {
         path: "stats/daysoff/list",
         component: () => import("pages/StatsDaysOffList.vue"),
+      },
+      {
+        path: "stats/missions",
+        component: () => import("pages/StatsMissionsList.vue"),
+      },
+      {
+        path: "stats/missions/add",
+        component: () => import("src/pages/StatsMissionsAdd.vue"),
+      },
+      {
+        path: "stats/agents",
+        component: () => import("pages/StatsAgentsList.vue"),
+      },
+      {
+        path: "stats/agents/add/external",
+        component: () => import("pages/StatsAgentsAdd.vue"),
+      },
+      {
+        path: "stats/agents/add/internal",
+        component: () => import("pages/StatsAgentsAdd.vue"),
       },
     ],
   },
